@@ -24,9 +24,9 @@
 import rospy
 from diagnostic_msgs.msg import *
 from std_msgs.msg import Float32
-from rbx2_msgs.srv import *
+from pfg_msgs.srv import *
 import dynamic_reconfigure.server
-from rbx2_utils.cfg import BatterySimulatorConfig
+from pfg_utils.cfg import BatterySimulatorConfig
 import thread
 
 class BatterySimulator():

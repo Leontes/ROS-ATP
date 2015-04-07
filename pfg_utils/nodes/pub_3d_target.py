@@ -27,7 +27,7 @@ from visualization_msgs.msg import Marker
 from geometry_msgs.msg import PointStamped, Point, PoseStamped, Pose
 from dynamic_reconfigure.server import Server
 import dynamic_reconfigure.client
-from rbx2_utils.cfg import Pub3DTargetConfig
+from pfg_utils.cfg import Pub3DTargetConfig
 import math
 
 class Pub3DTarget():
