@@ -14,7 +14,4 @@
 
   <!-- Body of TurtleBot, with plates, standoffs and Create (including sim sensors) -->
   <turtlebot_body/>
-  
-  <!-- Kinect frames and mounting (includes simulation) -->
-  <turtlebot_kinect/>
 </robot>

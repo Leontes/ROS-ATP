@@ -1,6 +1,0 @@
-string run_type
-string package_name
-string filename
-string params
----
-string process_id

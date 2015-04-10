@@ -14,7 +14,7 @@
   <param name="robot_description" command="$(arg urdf_file)" />
     
   <node name="arbotix" pkg="arbotix_python" type="arbotix_driver" clear_params="true" output="screen">
-     <rosparam file="$(find pfg_bringup)/config/fake_turtlebot_arbotix.yaml" command="load" />
+     <rosparam file="$(find pfg_description)/config/fake_turtlebot_arbotix.yaml" command="load" />
      <param name="sim" value="true"/>
   </node>
   
@@ -22,21 +22,17 @@
       <param name="publish_frequency" type="double" value="20.0" />
   </node>
   
-  <!-- We need a static transforms for the wheels -->
-  <node pkg="tf" type="static_transform_publisher" name="odom_left_wheel_broadcaster" args="0 0 0 0 0 0 /base_link /left_wheel_link 100" />
-  <node pkg="tf" type="static_transform_publisher" name="odom_right_wheel_broadcaster" args="0 0 0 0 0 0 /base_link /right_wheel_link 100" />
-  
   <!-- Run the map server with a blank map -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find pfg_nav)/maps/$(arg map)" />
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find pfg_description)/maps/$(arg map)" />
   
   <!-- The move_base node -->
   <node pkg="move_base" type="move_base" respawn="false" name="move_base" clear_params="true" output="screen">
-     <rosparam file="$(find pfg_nav)/config/fake/costmap_common_params.yaml" command="load" ns="global_costmap" />
-     <rosparam file="$(find pfg_nav)/config/fake/costmap_common_params.yaml" command="load" ns="local_costmap" />
-     <rosparam file="$(find pfg_nav)/config/fake/local_costmap_params.yaml" command="load" />
-     <rosparam file="$(find pfg_nav)/config/fake/global_costmap_params.yaml" command="load" />
-     <rosparam file="$(find pfg_nav)/config/fake/base_local_planner_params.yaml" command="load" />
-     <rosparam file="$(find pfg_nav)/config/nav_test_params.yaml" command="load" />
+     <rosparam file="$(find pfg_description)/config/map_params/costmap_common_params.yaml" command="load" ns="global_costmap" />
+     <rosparam file="$(find pfg_description)/config/map_params/costmap_common_params.yaml" command="load" ns="local_costmap" />
+     <rosparam file="$(find pfg_description)/config/map_params/local_costmap_params.yaml" command="load" />
+     <rosparam file="$(find pfg_description)/config/map_params/global_costmap_params.yaml" command="load" />
+     <rosparam file="$(find pfg_description)/config/map_params/base_local_planner_params.yaml" command="load" />
+     <rosparam file="$(find pfg_description)/config/nav_test_params.yaml" command="load" />
 
   </node>
   

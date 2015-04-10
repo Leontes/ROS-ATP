@@ -4,6 +4,7 @@ from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32
 from pfg_msgs.srv import *
+from pfg_tasks.black_board import *
 
 
 
@@ -96,28 +97,6 @@ class goToTask(SimpleActionTask):
 		return super(goToTask, self).run()
 
 
-class CheckLocation(Task):
-    def __init__(self, place, *args, **kwargs):
-        name = "checkLocation"
-        super(CheckLocation, self).__init__(name)    
-        self.name = name
-        self.place = place
-
-    def run(self):
-        wp = black_board.getCoords(self.place)
-        cp = black_board.getCoords("robot")
-        
-        distance = sqrt((wp.x - cp.x) * (wp.x - cp.x) +
-                        (wp.y - cp.y) * (wp.y - cp.y) +
-                        (wp.z - cp.z) * (wp.z - cp.z))
-                                
-        if distance < 0.15:
-            status = TaskStatus.SUCCESS
-        else:
-            status = TaskStatus.FAILURE
-            
-        return status
-
 
 
 ''' Routines '''
@@ -142,40 +121,3 @@ def recharge_cb(result):
 
 def update_robot_position(msg):
 	black_board.setCoords("robot", msg.base_position.pose.position.x, msg.base_position.pose.position.y)
-
-
-def batteryRoutine(black_board):
-	# The "stay healthy" rutine
-	stayHealthyTask = Selector("stayHealthy")
-
-	with stayHealthyTask:
-		# Add the check battery condition (uses MonitorTask)
-		checkBatteryTask = MonitorTask("checkBattery", "battery_level", Float32, check_battery)
-
-
-
-		# Add the recharge task (uses ServiceTask)
-		chargeRobotTask = ServiceTask("chargeRobot", "battery_simulator/set_battery_level", SetBatteryLevel, 100, result_cb=recharge_cb)
-
-		# Add the movement routine to the dock
-		coords = black_board.getCoords('dock')
-		goal = MoveBaseGoal()
-		goal.target_pose.header.frame_id = 'map'
-		goal.target_pose.header.stamp = rospy.Time.now()
-		goal.target_pose.pose = coords
-		
-		moveToDockTask = SimpleActionTask("MoveToDock", "move_base", MoveBaseAction, goal, reset_after=True,  feedback_cb=update_robot_position)
-		checkLocationTask = CheckLocation("dock")
-
-		NavigationTask = Selector("Nav", [checkLocationTask, moveToDockTask] )
-
-		# Build the recharge sequence using inline syntax
-		rechargeTask = Sequence("recharge", [NavigationTask, chargeRobotTask])
-
-
-
-		# Add the check battery and recharge tasks to the stay healthy selector
-		stayHealthyTask.add_child(checkBatteryTask)
-		stayHealthyTask.add_child(rechargeTask)
-
-	black_board.setRoutine(stayHealthyTask)

@@ -6,12 +6,13 @@ from __future__ import print_function
 import rospy
 
 from pyhop_pkg.pyhop import *
-import pfg_tasks.factory_methods
-import pfg_tasks.factory_operators
+from pyhop_pkg.factory_methods import *
+from pyhop_pkg.factory_operators import *
 from pi_trees_lib.pi_trees_lib import *
-from pfg_tasks.black_board import *
-from pfg_tasks.robotTasks import *
 from pfg_tasks.task_setup import * 
+from pfg_tasks import global_vars
+from user_files.robot_config import *
+from pfg_tasks.core_tasks import *
 
 
 class Work():
@@ -36,53 +37,25 @@ class Work():
 		plan = pyhop(state,[('work', goal)], verbose=0)
 
 		print('** result =',plan,'\n')
-
-
-
-		black_board.setWorld(state)
-
-		black_board.setWorldOperators(operators)
-
-		black_board.setCoords("robot", 0, 0)
-		black_board.setCoords("workstation1", 2, 1)
-		black_board.setCoords("storehouse", 0, 0)
-		black_board.setCoords("dock", 0.5, 0.5)
-
-
-
-		black_board.setMovementTask('moveRobot')
-
-		black_board.setTask('pickUp',pickUpTask(name = 'pickUpTask', timer=60))
-		black_board.setTask('putDown',putDownTask(name = 'putDownTask', timer=60))
-		black_board.setTask('load',putDownTask(name = 'loadTask', timer=40))
-		black_board.setTask('unLoad',pickUpTask(name = 'unLoadTask', timer=40))
-		black_board.setTask('useWorkstation',sleepTask(name = 'useWorkstationTask', timer = 5))
-
 		
 		rospy.init_node("planner_node", anonymous=False)
-		
-		batteryRoutine(black_board)
-
-		
 
 		rospy.on_shutdown(self.shutdown)
 
 		setup_task_environment(self)
 
+		global_vars.init()
 
-		Tree = black_board.makeTree(plan)
+		getConfig()
+
+		Tree = makeTree(plan)
 
 		print_tree(Tree)
 
 
-		#while not rospy.is_shutdown():
-		#	Tree.run()
-		#	rospy.sleep(0.1)
-
-
-        
-	def update_robot_position(self, msg):
-		black_board.robot_position = msg.base_position.pose.position
+		while not rospy.is_shutdown():
+			Tree.run()
+			rospy.sleep(0.1)
 
 
 	def shutdown(self):

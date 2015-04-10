@@ -2,10 +2,9 @@
 
 
 import rospy
-from robotTasks import *
 from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
 from geometry_msgs.msg import Pose
-
+from pi_trees_ros.pi_trees_ros import *
 
 class BlackBoard(object):
 
@@ -74,6 +73,12 @@ class BlackBoard(object):
 	Coordinates related functions
 	"""
 
+	def setRobotOrigin(self, place):
+		if place in self.worldCoords:
+			self.lastPlace = place
+		else:
+			return False
+
 	def setCoords(self, entity, x, y):
 		"""
 		Creates a new pair entity:Coordinates
@@ -115,57 +120,3 @@ class BlackBoard(object):
 
 	def getWorldOperator(self, operator):
 		return self.worldOperators[operator]
-
-
-	"""
-	Tree generator
-	"""
-
-
-	def makeRutines(self):
-		rutines = Sequence("routines")
-
-		for i in range(len(self.routinesList)):
-			rutines.add_child(self.routinesList[i])
-
-		return rutines
-
-
-
-	def makeTree(self, plan):
-
-		tree = Sequence("Tree")
-
-		tree.add_child(self.makeRutines())
-
-		execPlan = Sequence("execPlan")
-
-		lastPlace = ""
-
-		for i in range(len(plan)):
-			if plan[i][0] == self.movementTask:
-				coord = self.getCoords(plan[i][1])
-				execPlan.add_child(goToTask("MoveToTask: " + plan[i][1], coord))
-				lastPlace = plan[i][1]
-			
-			else:
-				task = self.getTask(plan[i][0])
-				if task != False:
-					
-					coords = black_board.getCoords(lastPlace)
-					moveToLasPositionTask = goToTask("MoveToTaskLastPosition: " + lastPlace, coords)
-					checkLocationTask = CheckLocation(lastPlace)
-
-					NavigationTask = Selector("NavRoutine", [checkLocationTask, moveToLasPositionTask])
-
-					execPlan.add_child(Sequence("Task "+ plan[i][0], [NavigationTask, task]))
-		
-		tree.add_child(execPlan)
-
-
-		return tree
-
-
-
-
-black_board = BlackBoard()

@@ -20,7 +20,9 @@
   <run_depend>pfg_utils</run_depend>
   <run_depend>pfg_nav</run_depend>
   <run_depend>pfg_description</run_depend>
-  <run_depend>pfg_bringup</run_depend>
+  <run_depend>pyhop_pkg</run_depend>
+  <run_depend>pi_trees</run_depend>
+  
  
   <export>
     <metapackage/>
