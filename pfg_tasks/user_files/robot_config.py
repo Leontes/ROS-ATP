@@ -3,8 +3,8 @@ from pfg_tasks import global_vars
 from pfg_tasks.core_tasks import *
 from pfg_tasks.core_routines import *
 
-from pfg_tasks.user_tasks import *
-from pfg_tasks.user_routines import *
+from user_files.user_tasks import *
+from user_files.user_routines import *
 
 
 def getConfig():

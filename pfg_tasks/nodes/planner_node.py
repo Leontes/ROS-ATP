@@ -5,9 +5,9 @@ from __future__ import print_function
 
 import rospy
 
-from pyhop_pkg.pyhop import *
-from pyhop_pkg.factory_methods import *
-from pyhop_pkg.factory_operators import *
+from pyhop import hop
+from user_files.factory_methods import *
+from user_files.factory_operators import *
 from pi_trees_lib.pi_trees_lib import *
 from pfg_tasks.task_setup import * 
 from pfg_tasks import global_vars
@@ -19,14 +19,14 @@ class Work():
  	"""docstring for Work"""
  	def __init__(self):
 
-		state = State('state')
+		state = hop.State('state')
 		state.types={'piece1':'type1'}
 		state.position={'piece1':'storehouse', 'robot':'storehouse'}
 		state.ocupied={'robot':False, 'workstation1':False}
 		state.stationAcepts={'workstation1':'type1'}
 		state.stationProduces={'workstation1':'type2'}
 
-		goal = Goal('goal')
+		goal = hop.Goal('goal')
 		goal.types={'piece1':'type2'}
 		goal.position={'piece1':'storehouse', 'robot':'storehouse'}
 		goal.ocupied={'robot':False, 'workstation1':False}
@@ -34,7 +34,7 @@ class Work():
 		goal.stationProduces={'workstation1':'type2'}
 
 
-		plan = pyhop(state,[('work', goal)], verbose=0)
+		plan = hop.plan(state,[('work', goal)], hop.get_operators(), hop.get_methods(), verbose=0)
 
 		print('** result =',plan,'\n')
 		
