@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-black_board.py - Version 0.7 2015-04-13
+black_board.py - Version 0.7 2015-04-14
 
 Class designed as a intermediate between the htn planner 
 and the beaviour tree
@@ -94,6 +94,12 @@ class BlackBoard(object):
 		else:
 			return False
 
+	def getRobotOrigin(self):
+		"""Returns the place where the robot starts the execution.
+
+		"""
+		return self.lastPlace
+
 
 	def setCoords(self, entity, x, y):
 		"""Creates a new pair entity:Coordinates 
@@ -124,3 +130,14 @@ class BlackBoard(object):
 			return self.worldCoords[entity]
 		else:
 			return False
+
+
+	def makeRutines():
+	""" Returns a executable sequence of routines predefined in the black board
+	
+	"""
+	rutines = Sequence("routines")
+	for i in range(len(global_vars.black_board.routinesList)):
+		rutines.add_child(global_vars.black_board.routinesList[i])
+
+	return rutines

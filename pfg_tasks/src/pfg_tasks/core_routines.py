@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-core_routines.py - Version 1.0 2015-04-13
+core_routines.py - Version 1.0 2015-04-14
 
 Predefined routines for the robot
 

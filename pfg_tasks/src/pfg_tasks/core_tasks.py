@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-core_tasks.py - Version 1.0 2015-04-13
+core_tasks.py - Version 1.0 2015-04-14
 
 Colection of general purpouse leaf tasks for the beaviour tree 
 

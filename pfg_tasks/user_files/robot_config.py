@@ -8,22 +8,41 @@ from user_files.user_routines import *
 
 
 def getConfig():
+	"""Sets the black board configuration 
 
+	"""
+
+	#Indicates the movement action defined in the planification domain
 	global_vars.black_board.setMovementTask('moveRobot')
 
-	global_vars.black_board.setTask('pickUp',pickUpTask(name = 'pickUpTask', timer=60))
-	global_vars.black_board.setTask('putDown',putDownTask(name = 'putDownTask', timer=60))
-	global_vars.black_board.setTask('load',putDownTask(name = 'loadTask', timer=40))
-	global_vars.black_board.setTask('unLoad',pickUpTask(name = 'unLoadTask', timer=40))
-	global_vars.black_board.setTask('useWorkstation',sleepTask(name = 'useWorkstationTask', timer = 5))
+	#Indicates the relation between a action of the plan and a executable task
+	global_vars.black_board.setTask('pickUp',
+		spinRightTask(name = 'pickUpTask', timer=60))
+	global_vars.black_board.setTask('putDown',
+		spinLeftTask(name = 'putDownTask', timer=60))
+	global_vars.black_board.setTask('load',
+		spinLeftTask(name = 'loadTask', timer=40))
+	global_vars.black_board.setTask('unLoad',
+		spinRightTask(name = 'unLoadTask', timer=40))
+	global_vars.black_board.setTask('useWorkstation',
+		sleepTask(name = 'useWorkstationTask', timer = 5))
+	#global_vars.black_board.setTask('actionName', 
+		#task(param1 = value1, param2 = value2, ...))
 
 
-
+	#Indicates the [x,y] coordinates in the simulator of any entity 
+	#in the planification domain
 	global_vars.black_board.setCoords("robot", 0, 0)
 	global_vars.black_board.setCoords("storehouse", 0, 0)
 	global_vars.black_board.setCoords("workstation1", 2, 1)
 	global_vars.black_board.setCoords("dock", 0.5, 0.5)
+	#global_vars.black_board.setCoords("entity", xValue, yValue)
 
+	#Sets the initial position of the robot, must be the same
+	#as in the initial state of the planner
 	global_vars.black_board.setRobotOrigin("storehouse")
 
+
+	#Adds the routines 
 	addCoreRoutines()
+	addUserRoutines()
