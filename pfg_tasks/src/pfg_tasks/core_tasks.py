@@ -71,7 +71,7 @@ class spinLeftTask(Task):
 		name -- String indicates the name of the task in the tree
 		timer -- Integer indicates the time in deciseconds
 		"""
-		super(pickUpTask, self).__init__(name, children = None)
+		super(spinLeftTask, self).__init__(name, children = None)
 		self.name = name
 		self.timer = timer
 		self.finished = False
@@ -111,7 +111,7 @@ class spinRightTask(Task):
 		name -- String indicates the name of the task in the tree
 		timer -- Integer indicates the time in deciseconds
 		"""
-		super(putDownTask, self).__init__(name, children = None)
+		super(spinRightTask, self).__init__(name, children = None)
 		self.name = name
 		self.timer = timer
 		self.finished = False
@@ -170,43 +170,93 @@ class sleepTask(Task):
 			return TaskStatus.RUNNING
 
 
+class checkDoneTask(Task):
+	""" Class checkDoneTask. When executed checks if the task has been executed
 
+	"""
+	def __init__(self, name, index):
+		""" Creates a object of the type checkDoneTask
+
+		Keywords arguments:
+		name -- String indicates the name of the task in the tree
+		index -- Integer indicates the task to be checked
+		"""
+		super(checkDoneTask, self).__init__(name, children = None)
+		self.index = index
+
+	def run(self):
+		""" Executes the task. The task checks the task in the black board, 
+		if its have been executed returns Success, else returns FAILURE
+
+		"""
+		if global_vars.black_board.checkDone(self.index) == True:
+			return TaskStatus.SUCCESS
+		else:
+			return TaskStatus.FAILURE
+
+
+class setDoneTask(Task):
+	""" Class checkDoneTask. When executed sets the task as executed
+	in the black board
+
+	"""
+	def __init__(self, name, index):
+		""" Creates a object of the type checkDoneTask
+
+		Keywords arguments:
+		name -- String indicates the name of the task in the tree
+		index -- Integer indicates the task to be seted
+		"""
+		super(setDoneTask, self).__init__(name, children = None)
+		self.index = index
+
+	def run(self):
+		""" Executes the task. The task checks the task in the black board, 
+		if its have been executed returns Success,
+		else sets it has executed and return Success
+
+		"""
+		if global_vars.black_board.checkDone(self.index) == True:
+			return TaskStatus.SUCCESS
+		else:
+			global_vars.black_board.setDone(self.index)
+			return TaskStatus.SUCCESS
+		
 
 class checkLocationTask(Task):
 	"""Class checkLocationTask. When executed checks the position in the simulator
 	and compare it with a predefined position
-	
+
 	"""
-    def __init__(self, place):
-    	""" Creates a object of the type checkLocationTask
+	def __init__(self, place):
+		""" Creates a object of the type checkLocationTask
 
 		Keywords arguments:
-		name -- String indicates the name of the task in the tree
+		place -- String indicates the name of the task in the tree
 		timer -- Integer indicates the time in deciseconds
 		"""
-        name = "CHECKLOCATION: " + name
-        super(CheckLocation, self).__init__(name)    
-        self.name = name
-        self.place = place
+		name = "CHECKLOCATION: " + place
+		super(checkLocationTask, self).__init__(name)    
+		self.name = name
+		self.place = place
 
-    def run(self):
-    	""" Executes the task. The task computes the euclidean distance between the 
-    	robot and the waypoint
+	def run(self):
+		""" Executes the task. The task computes the euclidean distance between the 
+		robot and the waypoint
 
 		"""
+		waypoint = global_vars.black_board.getCoords(self.place).position
+		robot = global_vars.black_board.getCoords("robot").position
 
-        waypoint = global_vars.black_board.getCoords(self.place).position
-        robot = global_vars.black_board.getCoords("robot").position
-        
-        distance = sqrt(pow((waypoint.x - robot.x),2) + pow((waypoint.y - robot.y),2)
-        	+ pow((waypoint.z - robot.z),2)
-                                
-        if distance < 0.1:
-            status = TaskStatus.SUCCESS
-        else:
-            status = TaskStatus.FAILURE
-            
-        return status
+		distance = sqrt(pow((waypoint.x - robot.x),2) + pow((waypoint.y - robot.y),2)
+			+ pow((waypoint.z - robot.z),2))
+
+		if distance < 0.1:
+			status = TaskStatus.SUCCESS
+		else:
+			status = TaskStatus.FAILURE
+
+		return status
 
 
 def update_robot_position(msg):
@@ -226,14 +276,14 @@ def check_battery(msg):
 	Keywords arguments:
 	msg -- Float indicates the current battery level.
 	"""
-		if msg.data is None:
-			return TaskStatus.RUNNING
+	if msg.data is None:
+		return TaskStatus.RUNNING
+	else:
+		if msg.data < global_vars.low_battery_threshold:
+			rospy.loginfo("LOW BATTERY - level: " + str(int(msg.data)))
+			return TaskStatus.FAILURE
 		else:
-			if msg.data < global_vars.low_battery_threshold:
-				rospy.loginfo("LOW BATTERY - level: " + str(int(msg.data)))
-				return TaskStatus.FAILURE
-			else:
-				return TaskStatus.SUCCESS
+			return TaskStatus.SUCCESS
     
 	
 def recharge_cb(result):

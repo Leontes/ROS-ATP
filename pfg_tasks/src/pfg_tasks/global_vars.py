@@ -20,6 +20,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 """
+import actionlib
+import rospy
+
+from geometry_msgs.msg import Twist
 
 from pfg_tasks.black_board import *
 
@@ -32,3 +36,9 @@ def init():
 
 	global low_battery_threshold 
 	low_battery_threshold = 50.0
+
+	global move_base
+	move_base = actionlib.SimpleActionClient("move_base", MoveBaseAction)
+
+	global cmd_vel_pub
+	cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size = 10)

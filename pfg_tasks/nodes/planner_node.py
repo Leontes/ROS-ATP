@@ -48,13 +48,17 @@ def makeTree(plan):
 	tree = Sequence("Tree")
 
 	#Added the routines from the black board
-	tree.add_child(makeRutines())
+	tree.add_child(global_vars.black_board.makeRoutines())
 
 	#The node of the plan
-	execPlan = Sequence("execPlan")
+	planTask = Sequence("Plan")
 
 	#Initialize the first place where the robot starts
 	lastPlace = global_vars.black_board.getRobotOrigin()
+
+	#Set all the posible tasks in the black board to be executed
+	global_vars.black_board.taskDone = [False for i in range(len(plan))]
+
 
 	#For every task in the plan...
 	for i in range(len(plan)):
@@ -62,8 +66,16 @@ def makeTree(plan):
 		if plan[i][0] == global_vars.black_board.movementTask:
 			coord = global_vars.black_board.getCoords(plan[i][1])
 			if coord != False:
-				#Creates a movement task and adds it to the plan
-				execPlan.add_child(goToTask("MoveToTask: " + plan[i][1], coord))
+				#Creates a super node to hold the task
+				actionTask = Sequence("Action " + str(i+1))
+
+				#Creates a movement task and adds it to the actionTask 
+				#with the corresponding setDoneTask
+				actionTask.add_child(goToTask("MoveToTask: " + plan[i][1], coord))
+				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i))
+
+				#Adds the actionTask to the plan
+				planTask.add_child(actionTask)
 				#Updates the robot position
 				lastPlace = plan[i][1]
 			else:
@@ -74,24 +86,39 @@ def makeTree(plan):
 			#Request the executable task to the black board
 			task = global_vars.black_board.getTask(plan[i][0])
 			if task != False:
+
+				#Creates a super node to hold the task 
+				actionTask = Sequence("Action " + str(i+1))
+
+				#Adds the task and his setDoneTask to the actionTask
+				actionTask.add_child(task)
+				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i))
+
 				#Subroutine to check the robots position and returns to the work place
 				coords = global_vars.black_board.getCoords(lastPlace)
-				if coord != False:
-					checkLocationTask = CheckLocation(lastPlace)
+				if coords != False:
+
+					checkLocation = checkLocationTask(lastPlace)
 					moveToLasPositionTask = goToTask("MoveToTaskLastPosition: " + lastPlace, coords)
 
 					#The subroutine first checks the location of the robot, and then if necesary moves it
-					NavigationTask = Selector("NavRoutine", [checkLocationTask, moveToLasPositionTask])
+					NavigationTask = Selector("NavRoutine", [checkLocation, moveToLasPositionTask])
+
+					#Creates a node with all the executable leaf nodes
+					execTask = Sequence("Executable", [NavigationTask, actionTask])
 				else:
 					raise ValueError("Place not defined in the black board")
 
-				#Adds the subroutine with the task to the plan node of the tree
-				execPlan.add_child(Sequence("Task "+ plan[i][0], [NavigationTask, task]))
+
+				checkDone = checkDoneTask("CheckDoneTask "+ str(i+1), i)
+				#Adds a node that first checks if the task has been executed, 
+				#and if not executes it
+				planTask.add_child(Selector("Task "+ plan[i][0], [checkDone, execTask]))
 			else:
 				raise ValueError("Task not defined in the black board")
 	
 	#Add the plan to the tree and returns it
-	tree.add_child(execPlan)
+	tree.add_child(planTask)
 	return tree
 
 
@@ -141,9 +168,10 @@ def runRobot():
 		print_tree(Tree)
 
 		#Runs the tree
-		while not rospy.is_shutdown():
+		while not rospy.is_shutdown() and global_vars.black_board.finished() == False:
 			Tree.run()
 			rospy.sleep(0.1)
+			print (global_vars.black_board.taskDone)
 	else:
 		raise ValueError("Empty plan generated")
 
@@ -155,9 +183,9 @@ def shutdown():
 	Cancels all the goals given to move_base, stops the robot
 	"""
 	rospy.loginfo("Stopping the robot...")
-	self.move_base.cancel_all_goals()
+	global_vars.move_base.cancel_all_goals()
 
-	self.cmd_vel_pub.publish(Twist())
+	global_vars.cmd_vel_pub.publish(Twist())
 
 	rospy.sleep(1)
 
@@ -166,9 +194,7 @@ if __name__ == '__main__':
 	"""Main funcion of the node
 	
 	"""
-    try:
-        runRobot()
-    except rospy.ROSInterruptException:
-        rospy.loginfo("Robot running finished.")
-    except ValueError:
-    	rospy.loginfo("Robot running finished.")
+	try:
+		runRobot()
+	except ValueError, rospy.ROSInterruptException:
+		rospy.loginfo("Robot running finished.")

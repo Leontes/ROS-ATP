@@ -58,9 +58,9 @@ def batteryRoutine():
 	goal.target_pose.pose = coords
 	
 	moveToDockTask = SimpleActionTask("MoveToDock", "move_base", MoveBaseAction, goal, reset_after=True,  feedback_cb=update_robot_position)
-	checkLocationTask = CheckLocation("dock")
+	checkLocation = checkLocationTask("dock")
 
-	NavigationTask = Selector("Nav", [checkLocationTask, moveToDockTask] )
+	NavigationTask = Selector("Nav", [checkLocation, moveToDockTask] )
 
 	# Build the recharge sequence using inline syntax
 	rechargeTask = Sequence("recharge", [NavigationTask, chargeRobotTask])

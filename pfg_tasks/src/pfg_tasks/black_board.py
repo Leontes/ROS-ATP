@@ -41,6 +41,7 @@ class BlackBoard(object):
 		self.world = False
 		self.worldOperators = {}
 		self.routinesList = []
+		self.taskDone = []
 
 
 	def setTask(self, action, task):
@@ -53,24 +54,24 @@ class BlackBoard(object):
 		self.task_list.update({action:task})
 
 	def getTask(self, task):
-	"""Returns the desired task. False in case that not exists
+		"""Returns the desired task. False in case that not exists
 
-	Keyword arguments:
-	task -- String indicating the task name
-	"""
-	if(task in self.task_list):
-		return self.task_list[task]
-	else:
-		return False
+		Keyword arguments:
+		task -- String indicating the task name
+		"""
+		if(task in self.task_list):
+			return self.task_list[task]
+		else:
+			return False
 
 
 	def setMovementTask(self, action):
 		""" Creates a reference to the movement task of the plan in the BlackBoard
 
 		Keyword arguments:
-		task -- String indicating the name of the movement action in the pddl domain
+		action -- String indicating the name of the movement action in the pddl domain
 		"""
-		self.movementTask = task
+		self.movementTask = action
 
 	
 	def setRoutine(self, routine):
@@ -132,12 +133,39 @@ class BlackBoard(object):
 			return False
 
 
-	def makeRutines():
-	""" Returns a executable sequence of routines predefined in the black board
-	
-	"""
-	rutines = Sequence("routines")
-	for i in range(len(global_vars.black_board.routinesList)):
-		rutines.add_child(global_vars.black_board.routinesList[i])
+	def checkDone(self, index):
+		""" Returns the if a task has been executed
 
-	return rutines
+		Keyword arguments:
+		index -- Integer indicates the task to be checked
+		"""
+		return self.taskDone[index]
+
+
+	def setDone(self, index):
+		""" Set a task has done
+
+		Keyword arguments:
+		index -- Integer indicates the task to be updated
+		"""
+		self.taskDone[index] = True
+
+
+	def makeRoutines(self):
+		""" Returns a executable sequence of routines predefined in the black board
+		
+		"""
+		rutines = Sequence("routines")
+		for i in range(len(self.routinesList)):
+			rutines.add_child(self.routinesList[i])
+
+		return rutines
+
+	def finished(self):
+		""" Returns if all the defined tasks of the plan has been executed
+
+		"""
+		for i in range(len(self.taskDone)):
+			if self.taskDone[i] == False:
+				return False
+		return True
