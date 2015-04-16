@@ -332,10 +332,10 @@ Visualization Manager:
       Value: false
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /waypoint_list
+      Marker Topic: /waypointsMarkers
       Name: Locations
       Namespaces:
-        Waypoints: true
+        WaypointsNS: true
       Queue Size: 100
       Value: true
   Enabled: true
