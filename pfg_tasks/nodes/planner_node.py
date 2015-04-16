@@ -30,7 +30,7 @@ from pyhop import hop
 from user_files.factory_methods import *
 from user_files.factory_operators import *
 from pi_trees_lib.pi_trees_lib import *
-#from pfg_tasks.task_setup import * 
+from description.enviroment_setup import * 
 from pfg_tasks import global_vars
 from user_files.robot_config import *
 from pfg_tasks.core_tasks import *
@@ -156,12 +156,13 @@ def runRobot():
 
 		rospy.on_shutdown(shutdown)
 
-		#Initializes the simulator 
-		#setup_task_environment(self)
-
 		#Sets the Global variables and the user defined robot configuration
 		global_vars.init()
+
 		getConfig()
+
+		#Initializes the simulator 
+		init_environment()
 
 		#Computes the behaviour tree
 		Tree = makeTree(plan)
@@ -171,7 +172,6 @@ def runRobot():
 		while not rospy.is_shutdown() and global_vars.black_board.finished() == False:
 			Tree.run()
 			rospy.sleep(0.1)
-			print (global_vars.black_board.taskDone)
 	else:
 		raise ValueError("Empty plan generated")
 

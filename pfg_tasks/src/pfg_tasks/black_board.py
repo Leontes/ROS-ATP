@@ -133,6 +133,13 @@ class BlackBoard(object):
 			return False
 
 
+	def getAllCoords(self):
+		""" Returns the collection of coordinates stored in the black board
+
+		"""
+		return self.worldCoords
+
+
 	def checkDone(self, index):
 		""" Returns the if a task has been executed
 

@@ -4,8 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Docking Station1
-        - /Waypoints1
+        - /Waypoints
       Splitter Ratio: 0.85159
     Tree Height: 502
   - Class: rviz/Selection
@@ -125,26 +124,6 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
-        plate_0_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        plate_1_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        plate_2_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
-        plate_3_link:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         rear_wheel_link:
           Alpha: 1
           Show Axes: false
@@ -353,18 +332,10 @@ Visualization Manager:
       Value: false
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /docking_station_marker
-      Name: Docking Station
+      Marker Topic: /waypoint_list
+      Name: Locations
       Namespaces:
-        waypoints: true
-      Queue Size: 100
-      Value: true
-    - Class: rviz/Marker
-      Enabled: true
-      Marker Topic: /waypoint_markers
-      Name: Waypoints
-      Namespaces:
-        waypoints: true
+        Waypoints: true
       Queue Size: 100
       Value: true
   Enabled: true
