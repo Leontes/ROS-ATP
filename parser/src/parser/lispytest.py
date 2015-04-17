@@ -113,8 +113,11 @@ def test(tests, name=''):
             print 'FAIL!!!  Expected', expected
     print '%s %s: %d out of %d tests fail.' % ('*'*45, name, fails, len(tests))
 
+from lis import *
+from lispy import *
+
 if __name__ == '__main__':
-    from lis import *
+    
     test(lis_tests, 'lis.py')
-    from lispy import *
+    
     test(lis_tests+lispy_tests, 'lispy.py')

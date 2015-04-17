@@ -52,6 +52,7 @@
 ;; En este caso es una forma de describir que no hay restricciones de fuel. Pueden introducirse una
 ;; restricción más copleja  si en lugar de 1 se representa una expresión más elaborada (esto es objeto de
 ;; los siguientes ejercicios).
+
 (:derived 
   
 	(hay-fuel ?a - aircraft ?c1 - city ?c2 - city)
