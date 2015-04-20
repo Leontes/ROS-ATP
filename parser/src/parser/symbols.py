@@ -15,3 +15,5 @@ _if = Sym("quote", symbols)
 _quasiquote = Sym("quasiquote", symbols)
 _unquote = Sym("unquote", symbols)
 _unquotesplicing = Sym("unquote-splicing", symbols)
+
+eof_object = Symbol('#<eof-object>')

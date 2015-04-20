@@ -1,8 +1,6 @@
 import re
-from symbols import _quote, _quasiquote, _unquote, _unquotesplicing, Symbol, Sym
+from symbols import _quote, _quasiquote, _unquote, _unquotesplicing, Symbol, Sym, eof_object
 
-
-eof_object = Symbol('#<eof-object>')
 
 class tokenGenerator(object):
 	"""docstring for tokenGenerator"""
