@@ -1,5 +1,7 @@
+#!/usr/bin/python
+
 from tokenGenerator import *
-from os import path
+from domain import *
 
 
 def makePrimitives(tokens):
@@ -7,45 +9,57 @@ def makePrimitives(tokens):
 	for i in range(len(tokens)):
 		if tokens[i] == ":parameters":
 			parameters = tokens[i+1]
-		if tokens[i] == ":duration":
-			duration = tokens[i+1]
-		if tokens[i] == ":condition":
+		if tokens[i] == ":precondition":
 			condition = tokens[i+1]
 		if tokens[i] == ":effect":
 			effect = tokens[i+1]
 	if parameters == []:
-		raise("Parameters not defined")
-	if duration == []:
-		raise("Duration not defined")
+		raise Exception("Parameters not defined")
 	if condition == []:
-		raise("Conditions not defined")
+		raise Exception("Conditions not defined")
 	if effect == []:
-		raise("Effects not defined")
+		raise Exception("Effects not defined")
 
-	print("\n\n\n" + "#################################################")
+	"""
+	print("\n" + "#################################################")
 	print(parameters)
-	print("#################################################" + "\n\n\n")
+	print("#################################################")
 
-	print("\n\n\n" + "#################################################")
-	print(duration)
-	print("#################################################" + "\n\n\n")
-
-	print("\n\n\n" + "#################################################")
+	print("\n" + "#################################################")
 	print(condition)
-	print("#################################################" + "\n\n\n")
+	print("#################################################")
 
-	print("\n\n\n" + "#################################################")
+	print("\n" + "#################################################")
 	print(effect)
-	print("#################################################" + "\n\n\n")
-
+	print("#################################################")
+	"""
 
 def evaluateTokenList(tokens):
-		if tokens[0] ==  ":durative-action":
-			print ("Aqui hacemos una primitiva")
+		if tokens ==  "define":
+			global domain
+			domain = Domain()
+
+		elif tokens[0] == "domain":
+			domain.setName(tokens[1])
+		
+		elif tokens[0] == ":requirements":
+			domain.setRequirements(tokens[1:])
+
+		elif tokens[0] == ":types":
+			if domain.typing == True:
+				domain.setTypes(tokens[1:])
+			else:
+				raise Exception("Trying to define types when :typing is not set in requirements")
+
+		elif tokens[0] == ":predicates":
+			domain.setPredicates(tokens[1:])
+
+		elif tokens[0] == ":action":
+			print(tokens)
 			makePrimitives(tokens[1:])
 
 		else: 
-			raise("Unexpected token " + tokens[0] + " received")
+			raise Exception("Unexpected token " + tokens[0] + " received")
 
 
 def parse(filename):
@@ -53,21 +67,31 @@ def parse(filename):
 		#print(pddlFile.read())
 		tkGen = tokenGenerator(pddlFile)
 		tokens = tkGen.readAll()
-		evaluateTokenList(tokens)
-"""
+		#evaluateTokenList(tokens)
+
 		while tokens != eof_object:
 			for i in range(len(tokens)):
-				print(tokens[i])
-				print (i)
+				#print(tokens[i])
+				#print (i)
 
-			print("\n\n\n" + "#################################################")
-			evaluateTokenList(tokens)
-			print("#################################################" + "\n\n\n")
+				#print("\n" + "---------------------------------------------")
+				evaluateTokenList(tokens[i])
+				#print("---------------------------------------------")
 			tokens = tkGen.readAll() 
-"""
+		
+
+		print(domain.name)
+		print(domain.strips)
+		print(domain.equility)
+		print(domain.typing)
+		print(domain.adl)
+		print(domain.types)
+		domain.printState()
+
 
 if __name__ == '__main__':
 	#parse("pddl/d-zenotravel-V00.pddl")
-	parse("pddl/Primitivas-ZenoTravel.pddl")
+	#parse("pddl/Primitivas-ZenoTravel.pddl")
 	#parse("pddl/problema-zeno-v01.pddl")
+	parse("src/PFG/parser/src/parser/pddl/dominio1.pddl")
 

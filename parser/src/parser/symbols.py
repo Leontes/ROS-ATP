@@ -1,4 +1,4 @@
-
+#!/usr/bin/python
 
 class Symbol(str): pass
 

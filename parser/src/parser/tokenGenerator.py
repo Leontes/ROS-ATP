@@ -1,5 +1,7 @@
+#!/usr/bin/python
+
 import re
-from symbols import _quote, _quasiquote, _unquote, _unquotesplicing, Symbol, Sym, eof_object
+from symbols import _quote, _quasiquote, _unquote, _unquotesplicing, eof_object, Sym
 
 
 class tokenGenerator(object):

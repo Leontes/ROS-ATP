@@ -22,6 +22,7 @@
   <run_depend>pfg_description</run_depend>
   <run_depend>pyhop_pkg</run_depend>
   <run_depend>pi_trees</run_depend>
+  <run_depend>parser</run_depend>
   
  
   <export>
