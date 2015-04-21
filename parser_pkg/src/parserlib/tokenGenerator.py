@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import re
-from symbols import _quote, _quasiquote, _unquote, _unquotesplicing, eof_object, Sym
+from parserlib import symbols
 
 
 class tokenGenerator(object):
@@ -11,7 +11,7 @@ class tokenGenerator(object):
 		self.pddlFile = pddlFile
 		self.line = ""
 		self.rePattern = r"""\s*(,@|[('`,)]|"(?:[\\].|[^\\"])*"|;.*|[^\s('"`,;)]*)(.*)"""
-		self.quotes = {"'":_quote, "`":_quasiquote, ",":_unquote, ",@":_unquotesplicing}
+		self.quotes = {"'":symbols._quote, "`":symbols._quasiquote, ",":symbols._unquote, ",@":symbols._unquotesplicing}
 
 
 	def getNextToken(self):
@@ -20,7 +20,7 @@ class tokenGenerator(object):
 			if self.line == "": 
 				self.line = self.pddlFile.readline()
 			if self.line == "": 
-				return eof_object
+				return symbols.eof_object
 
 			token, self.line = re.match(self.rePattern, self.line).groups()
 			if token != "" and not token.startswith(';;'):
@@ -42,7 +42,7 @@ class tokenGenerator(object):
 			raise SyntaxError('unexpected )')
 		elif token in self.quotes:
 			return [self.quotes[token], self.readAll()]
-		elif token is eof_object:
+		elif token is symbols.eof_object:
 			raise SyntaxError('unexpected EOF in list')
 		else:
 			return self.atomic(token)
@@ -52,8 +52,8 @@ class tokenGenerator(object):
 		"Read a Scheme expression from an input port."
 		token = self.getNextToken() 
 		#print(token)
-		if token == eof_object:
-			return eof_object
+		if token == symbols.eof_object:
+			return symbols.eof_object
 		else:
 			return self.readToken(token)
 
@@ -73,4 +73,4 @@ class tokenGenerator(object):
 			try:
 				return float(token)
 			except ValueError:
-				return Sym(token)
+				return symbols.Sym(token)

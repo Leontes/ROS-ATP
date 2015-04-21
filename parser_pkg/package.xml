@@ -1,5 +1,5 @@
 <package>
-  <name>parser</name>
+  <name>parser_pkg</name>
   <version>0.1.0</version>
 
   <maintainer email="patrick@pirobot.org">Patrick Goebel</maintainer>

@@ -8,12 +8,12 @@ def Sym(s, symbol_table={}):
     	symbol_table[s] = Symbol(s)
     return symbol_table[s]
 
-symbols = {}
+symbolTable = {}
 
-_quote = Sym("quote",symbols)
-_if = Sym("quote", symbols)
-_quasiquote = Sym("quasiquote", symbols)
-_unquote = Sym("unquote", symbols)
-_unquotesplicing = Sym("unquote-splicing", symbols)
+_quote = Sym("quote",symbolTable)
+_if = Sym("quote", symbolTable)
+_quasiquote = Sym("quasiquote", symbolTable)
+_unquote = Sym("unquote", symbolTable)
+_unquotesplicing = Sym("unquote-splicing", symbolTable)
 
 eof_object = Symbol('#<eof-object>')
