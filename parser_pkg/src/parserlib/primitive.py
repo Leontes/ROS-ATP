@@ -3,7 +3,7 @@
 class Primitive (object):
 	"""docstring for primitive """
 	def __init__(self, name, domain, parameters, preconditions, effects):
-		self.__name__ = name
+		self.__name__ = name.upper()
 		self.domain = domain
 		self.setParameters(parameters)
 		self.preconditions = preconditions
@@ -22,10 +22,10 @@ class Primitive (object):
 		self.params = {}
 		for i in range(len(parameters)):
 			if parameters[i] == "-":
-				if parameters[i+1] in self.domain.types:
+				if parameters[i+1].upper() in self.domain.types:
 					self.params.update({parameters[i-1]:parameters[i+1]})
 				else:
-					raise Exception ("Type " + parameters[i+1] + " not defined")
+					raise Exception ("Type " + parameters[i+1].upper() + " not defined")
 
 
 	def checkArgs(self, state, *args):
