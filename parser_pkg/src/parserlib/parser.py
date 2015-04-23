@@ -119,6 +119,8 @@ def parse(domainFilename, problemFilename):
 	hop.declare_operators(*taskList)
 	hop.print_operators(hop.get_operators())
 
+	print(taskList[3](problemDomain.state, "B", "A", "M1", "R1", "Rob1"))
+
 	
 
 
