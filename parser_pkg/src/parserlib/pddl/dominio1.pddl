@@ -56,7 +56,7 @@
  )
   (:action unstack
 	     :parameters (?x - block ?y - block ?z - table ?u - room ?r - robot)
-	     :precondition (or (on ?x ?y) (clear ?x) (blockInTable ?x ?z)
+	     :precondition (and (on ?x ?y) (clear ?x) (blockInTable ?x ?z)
 				(blockInTable ?y ?z)  (in ?z ?u) (robotPos ?u ?r) (handempty ?r))
 	     :effect
 	     (and (holding ?x ?r)

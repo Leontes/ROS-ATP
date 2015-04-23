@@ -7,15 +7,14 @@ class Primitive (object):
 		self.domain = domain
 		self.setParameters(parameters)
 		self.preconditions = preconditions
-		self.effects = effects
+		self.effects = effects[1:]
 
 
 	def  __call__(self, State, *args):
 		if(self.checkArgs(State, args) == True):
 			if(self.checkPreconditions(State) == True):
-				return True
-				#State1 = self.execPrimitiveEffects(State)
-				#return State1
+				State1 = self.execPrimitiveEffects(State, args)
+				return State1
 		return False
 
 	def setParameters(self, parameters):
@@ -41,7 +40,6 @@ class Primitive (object):
 
 
 	def checkPreconditions(self, State):
-		print(self.preconditions)
 		if self.preconditions[0] == "and":
 			return self.checkPreconditionsAnd(State, self.preconditions[1:])
 		elif self.preconditions[0] == "or":
@@ -86,41 +84,81 @@ class Primitive (object):
 
 
 	def checkPreconditionsOr(self, State, preconditionAuxList):
-		#For all preconditions
-		for i in range(len(preconditionAuxList)):
-			#Take 1
-			precondition = preconditionAuxList[i]
-			#If theres a list with an OR statement
-			if precondition[0] == "and":
-				#Check the OR sublist
-				if checkPreconditionsAnd(State, precondition[1:]) == True:
-					return True
- 			else:
- 				#Check with the state
- 				predicate = getattr(State, precondition[0].upper(), False)
- 				#Lexic control
- 				if predicate == False:
- 					raise Exception(precondition[0].upper() + " not defined")
- 				else:
- 					#Auxiliar list with the parameters
- 					aux = []
- 					for j in range(1, len(precondition)):
- 						#Filling the auxiliar list...
- 						aux.append(self.linkedParams[precondition[j]])
- 					print(aux)
- 					match = False
- 					#Check with the state
- 					for j in range(len(predicate)):
- 						if aux == predicate[j]:
- 							match = True
- 					#if theres no match finish(its an OR we only need 1 match to return True)
- 					if match == True:
- 						return True
+		if self.domain.adl == True:
+			#For all preconditions
+			for i in range(len(preconditionAuxList)):
+				#Take 1
+				precondition = preconditionAuxList[i]
+				#If theres a list with an OR statement
+				if precondition[0] == "and":
+					#Check the OR sublist
+					if checkPreconditionsAnd(State, precondition[1:]) == True:
+						return True
+	 			else:
+	 				#Check with the state
+	 				predicate = getattr(State, precondition[0].upper(), False)
+	 				#Lexic control
+	 				if predicate == False:
+	 					raise Exception(precondition[0].upper() + " not defined")
+	 				else:
+	 					#Auxiliar list with the parameters
+	 					aux = []
+	 					for j in range(1, len(precondition)):
+	 						#Filling the auxiliar list...
+	 						aux.append(self.linkedParams[precondition[j]])
+	 					match = False
+	 					#Check with the state
+	 					for j in range(len(predicate)):
+	 						if aux == predicate[j]:
+	 							match = True
+	 					#if theres no match finish(its an OR we only need 1 match to return True)
+	 					if match == True:
+	 						return True
 
- 		return False
+	 		return False
+	 	else:
+	 		raise Exception("Or statements disabled without :adl tag")
 
 
-	def execPrimitiveEffects(self, State):
-		pass
+	def execPrimitiveEffects(self, State, *args):
+		effect = []
+		newState = State
+		for i in range(len(self.effects)):
+			effect = self.effects[i]
+
+			if effect[0] == "not":
+				effect = effect[1]
+				aux = []
+	 			for j in range(1, len(effect)):
+	 				aux.append(self.linkedParams[effect[j]])
+
+	 			auxEffect = getattr(newState, effect[0].upper(), False)
+				if auxEffect != False:
+					if auxEffect != "__NON_DEFINED__":
+						auxEffect.append(aux)
+						setattr(newState, effect[0].upper(), auxEffect)
+					else:
+						auxEffect = aux
+						setattr(newState, effect[0].upper(), auxEffect)
+				else:
+					raise Exception(effect[0].upper() + " predicate not defined")
+
+			else:
+				aux = []
+	 			for j in range(1, len(effect)):
+	 				aux.append(self.linkedParams[effect[j]])
+
+	 			auxEffect = getattr(newState, effect[0].upper(), False)
+				if auxEffect != False:
+					if auxEffect != "__NON_DEFINED__":
+						auxEffect.append(aux)
+						setattr(newState, effect[0].upper(), auxEffect)
+					else:
+						auxEffect = aux
+						setattr(newState, effect[0].upper(), auxEffect)
+				else:
+					raise Exception(effect[0].upper() + " predicate not defined")
+
+		return newState
 		
 		

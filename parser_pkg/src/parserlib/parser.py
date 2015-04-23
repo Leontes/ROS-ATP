@@ -119,7 +119,18 @@ def parse(domainFilename, problemFilename):
 	hop.declare_operators(*taskList)
 	hop.print_operators(hop.get_operators())
 
-	print(taskList[3](problemDomain.state, "B", "A", "M1", "R1", "Rob1"))
+	print("\n\n")
+	newState = problemDomain.state
+
+	hop.plan(newState,[('UNSTACK',"B", "A", "M1", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
+
+	hop.plan(newState,[('GO',"P", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
+
+	print("Aplicamos la task: " + taskList[4].__name__ + " con los parametros [P, R1, Rob1] y probamos a generar un plan para la tarea anterior \n")
+	newState = taskList[4](newState, "P", "R1","Rob1")
+
+	hop.plan(newState,[('UNSTACK',"B", "A", "M1", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
+
 
 	
 
