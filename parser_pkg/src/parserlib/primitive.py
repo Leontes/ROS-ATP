@@ -44,8 +44,23 @@ class Primitive (object):
 			return self.checkPreconditionsAnd(State, self.preconditions[1:])
 		elif self.preconditions[0] == "or":
 			return self.checkPreconditionsOr(State, self.preconditions[1:])
+		prec = getattr(State, self.preconditions[0][0].upper(), False)
+		if prec == False:
+			raise Exception("Token " + str(self.preconditions[0][0]).upper() + " not defined")
 		else:
-			raise Exception("Token " + self.preconditions[0] + " not defined")
+			aux = []
+			for i in range(1, len(self.preconditions[0])):
+				#Filling the auxiliar list...
+				aux.append(self.linkedParams[self.preconditions[0][i]])
+			print aux
+			match = False
+			#Check with the state
+			for j in range(len(prec)):
+				if aux == prec[j]:
+					match = True
+
+			return match
+
 
 
 

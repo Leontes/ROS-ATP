@@ -10,7 +10,6 @@ from pyhop import hop
 
 
 taskList = []
-methodList = []
 
 defined = False
 
@@ -48,7 +47,7 @@ def makeMethods(tokens):
 	if cases == []:
 		raise Exception("Parameters not defined")
 
-	methodList.append(Method(name, problemDomain, parameters, cases))
+	hop.declare_methods(name.upper(), Method(name, problemDomain, parameters, cases))
 	
 
 def evaluateTokenList(tokens):
@@ -136,9 +135,12 @@ def parse(domainFilename, problemFilename):
 	print("\nTypes defined: " + str(problemDomain.types))
 	print("\nObject list: " + str(problemDomain.objList))
 	print("\nInitial state: ")
+	"""
 	problemDomain.printState()
-	print("\n")
-	hop.declare_operators(*taskList)
+	print("\n") 
+	
+	"""
+	hop.declare_operators(*taskList) 
 	hop.print_operators(hop.get_operators())
 
 	print("\n\n")
@@ -154,7 +156,11 @@ def parse(domainFilename, problemFilename):
 	hop.plan(newState,[('UNSTACK',"B", "A", "M1", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1) 
 
 	"""
+	newState = problemDomain.state
+	print(hop.get_methods())
 
+	#hop.plan(newState,[('TURURU',"A", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
+	hop.plan(newState,[('MOVE_ROBOT',"Rob1", "R1")],hop.get_operators(),hop.get_methods(),verbose=1)
 
 	
 
