@@ -76,4 +76,21 @@
 		  (robotPos ?y ?r)
 	     )
  )
+
+ (:task move-robot
+	:parameters (?rob - robot ?r - room)
+	
+  (:method Case1 ;;si el robot esta en la habitacion no se hace nada
+	 :precondition (robotPos ?rob ?r)
+	 :tasks ()
+   )
+	 
+   
+   (:method Case2 ;;si no esta en la habitacion destino
+	  :precondition (robotPos ?rob ?r2)
+	  :tasks ( 
+	  (go ?r2 r rob)
+	  )
+	)
+)
 )

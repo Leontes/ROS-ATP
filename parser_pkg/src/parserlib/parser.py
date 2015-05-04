@@ -4,11 +4,13 @@ from parserlib.tokenGenerator import *
 from parserlib.domain import *
 from parserlib.symbols import *
 from parserlib.primitive import *
+from parserlib.method import *
 
 from pyhop import hop
 
 
 taskList = []
+methodList = []
 
 defined = False
 
@@ -21,14 +23,32 @@ def makePrimitives(tokens):
 			precondition = tokens[i+1]
 		if tokens[i] == ":effect":
 			effect = tokens[i+1]
-	if parameters == []:
-		raise Exception("Parameters not defined")
+	
 	if precondition == []:
 		raise Exception("Conditions not defined")
 	if effect == []:
 		raise Exception("Effects not defined")
 
 	taskList.append(Primitive(name, problemDomain, parameters, precondition, effect))
+
+
+def makeMethods(tokens):
+	name = tokens[0]
+
+	cases = []
+
+	for i in range(len(tokens)):
+		if tokens[i] == ":parameters":
+			parameters = tokens[i+1]
+		if tokens[i][0] == ":method":
+			cases.append(tokens[i])
+
+	if parameters == []:
+		raise Exception("Parameters not defined")
+	if cases == []:
+		raise Exception("Parameters not defined")
+
+	methodList.append(Method(name, problemDomain, parameters, cases))
 	
 
 def evaluateTokenList(tokens):
@@ -58,8 +78,10 @@ def evaluateTokenList(tokens):
 		problemDomain.setPredicates(tokens[1:])
 
 	elif tokens[0] == ":action":
-		#print(tokens)
 		makePrimitives(tokens[1:])
+
+	elif tokens[0] == ":task":
+		makeMethods(tokens[1:])
 
 	elif tokens[0] == "problem":
 		problemDomain.setProblemName(tokens[1])
@@ -104,7 +126,7 @@ def parse(domainFilename, problemFilename):
 			for i in range(len(tokens)):
 				evaluateTokenList(tokens[i])
 			tokens = tkGen.readAll()
-
+	""""
 	print("Domain name: " + problemDomain.name)
 	print("Problem name: " + problemDomain.problemName)
 	print(":strips enabled: " + str(problemDomain.strips))
@@ -129,7 +151,9 @@ def parse(domainFilename, problemFilename):
 	print("Aplicamos la task: " + taskList[4].__name__ + " con los parametros [P, R1, Rob1] y probamos a generar un plan para la tarea anterior \n")
 	newState = taskList[4](newState, "P", "R1","Rob1")
 
-	hop.plan(newState,[('UNSTACK',"B", "A", "M1", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
+	hop.plan(newState,[('UNSTACK',"B", "A", "M1", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1) 
+
+	"""
 
 
 	
