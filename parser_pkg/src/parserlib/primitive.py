@@ -40,18 +40,18 @@ class Primitive (object):
 
 
 	def checkPreconditions(self, State):
-		if self.preconditions[0] == "and":
-			return self.checkPreconditionsAnd(State, self.preconditions[1:])
-		elif self.preconditions[0] == "or":
-			return self.checkPreconditionsOr(State, self.preconditions[1:])
-		prec = getattr(State, self.preconditions[0][0].upper(), False)
+		if preconditions[0] == "and":
+			return self.checkPreconditionsAnd(State, preconditions[1:])
+		elif preconditions[0] == "or":
+			return self.checkPreconditionsOr(State, preconditions[1:])
+		prec = getattr(State, preconditions[0].upper(), False)
 		if prec == False:
-			raise Exception("Token " + str(self.preconditions[0][0]).upper() + " not defined")
+			raise Exception("Token " + str(preconditions[0]).upper() + " not defined")
 		else:
 			aux = []
-			for i in range(1, len(self.preconditions[0])):
+			for i in range(1, len(preconditions)):
 				#Filling the auxiliar list...
-				aux.append(self.linkedParams[self.preconditions[0][i]])
+				aux.append(self.linkedParams[preconditions[i]])
 			print aux
 			match = False
 			#Check with the state
@@ -72,7 +72,7 @@ class Primitive (object):
 			#If theres a list with an OR statement
 			if precondition[0] == "or":
 				#Check the OR sublist
-				if checkPreconditionsOr(State, precondition[1:]) == False:
+				if self.checkPreconditionsOr(State, precondition[1:]) == False:
 					return False
  			else:
  				#Check with the state
@@ -107,7 +107,7 @@ class Primitive (object):
 				#If theres a list with an OR statement
 				if precondition[0] == "and":
 					#Check the OR sublist
-					if checkPreconditionsAnd(State, precondition[1:]) == True:
+					if self.checkPreconditionsAnd(State, precondition[1:]) == True:
 						return True
 	 			else:
 	 				#Check with the state

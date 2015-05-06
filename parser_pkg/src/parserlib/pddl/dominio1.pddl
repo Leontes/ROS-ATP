@@ -88,7 +88,7 @@
 	:parameters (?rob - robot ?r - room)
 	
   (:method Case1 ;;si el robot esta en la habitacion no se hace nada
-	 :precondition (robotPos ?r ?rob)
+	 :precondition (and (robotPos ?r ?rob) (in B A))
 	 :tasks ()
    )
 	 

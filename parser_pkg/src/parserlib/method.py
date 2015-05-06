@@ -44,7 +44,23 @@ class Method(object):
 		return auxDict
 
 
+	def execCases(self, State, args):
+		for i in self.cases:
+
+			prec = self.cases[i][1]
+			tasks = self.cases[i][3]
+
+			#print prec
+			#print tasks
+			
+			if self.checkPreconditions(State, prec) == True:
+				pass
+
+		return False
+
+
 	def checkPreconditions(self, State, preconditions):
+		self.unify(State, preconditions)
 		if preconditions[0] == "and":
 			return self.checkPreconditionsAnd(State, preconditions[1:])
 		elif preconditions[0] == "or":
@@ -56,11 +72,7 @@ class Method(object):
 			aux = []
 			for i in range(1, len(preconditions)):
 				#Filling the auxiliar list...
-				if preconditions[i] in self.linkedParams:
-					aux.append(self.linkedParams[preconditions[i]])
-				else:
-					self.unify(State, preconditions, preconditions[i])
-					
+				aux.append(self.linkedParams[preconditions[i]])
 			match = False
 			#Check with the state
 			for j in range(len(prec)):
@@ -80,7 +92,7 @@ class Method(object):
 			#If theres a list with an OR statement
 			if precondition[0] == "or":
 				#Check the OR sublist
-				if checkPreconditionsOr(State, precondition[1:]) == False:
+				if self.checkPreconditionsOr(State, precondition[1:]) == False:
 					return False
  			else:
  				#Check with the state
@@ -93,10 +105,7 @@ class Method(object):
  					aux = []
  					for j in range(1, len(precondition)):
  						#Filling the auxiliar list...
- 						if preconditions[i] in self.linkedParams:
-							aux.append(self.linkedParams[preconditions[j]])
-						else:
-							self.unify(State, preconditions, preconditions[j])
+ 						aux.append(self.linkedParams[precondition[j]])
  					match = False
  					#Check with the state
  					for j in range(len(predicate)):
@@ -118,7 +127,7 @@ class Method(object):
 				#If theres a list with an OR statement
 				if precondition[0] == "and":
 					#Check the OR sublist
-					if checkPreconditionsAnd(State, precondition[1:]) == True:
+					if self.checkPreconditionsAnd(State, precondition[1:]) == True:
 						return True
 	 			else:
 	 				#Check with the state
@@ -131,10 +140,7 @@ class Method(object):
 	 					aux = []
 	 					for j in range(1, len(precondition)):
 	 						#Filling the auxiliar list...
-	 						if preconditions[i] in self.linkedParams:
-								aux.append(self.linkedParams[preconditions[j]])
-							else:
-								self.unify(State, preconditions, preconditions[j])
+	 						aux.append(self.linkedParams[precondition[j]])
 	 					match = False
 	 					#Check with the state
 	 					for j in range(len(predicate)):
@@ -149,23 +155,38 @@ class Method(object):
 	 		raise Exception("Or statements disabled without :adl tag")
 
 
-	def unify(self, State, precondition, var):
- 		print "Unificamos " + var + " con " + str(precondition)
- 		predicate = getattr(State, precondition[0].upper(), False)
- 		print predicate
+	def unify(self, State, preconditions):
+ 		self.selectVars(State, preconditions)
 
 
-	def execCases(self, State, args):
-		for i in self.cases:
+ 	def selectVars(self, State, preconditions):
+ 		print preconditions
+		for i in range(len(preconditions)):
+			aux = []
+			matches = 0
+			for j in range(1, len(preconditions[i])):
+				print preconditions[i][j]
+				if preconditions[i][j] in self.linkedParams:
+					matches += 1
+					aux.append(preconditions[i][j])
+				else:
+					aux.append("__var__")
+			print preconditions[i][0]
+			predicates = getattr(State, preconditions[i][0].upper(), False)
+			print predicates
+			#print preconditions[i][0]
+			if predicates != False:	
+				for j in range(len(predicates)):	
+					auxMatchs = 0
+					for k in range(len(predicates[j])):
+						if aux[k] != "__var__":
+							if aux[k] == predicates[j][k]:
+								auxMatchs += 1
+					print auxMatchs
+					print matches
+					if auxMatchs == matches:
+						#Guardamos las variables en su sitio
+						#print predicates[j]
+						pass
 
-			prec = self.cases[i][1]
-			tasks = self.cases[i][3]
-
-			print prec
-			print tasks
-			
-			if self.checkPreconditions(State, prec) == True:
-				pass
-
-		return False
 		

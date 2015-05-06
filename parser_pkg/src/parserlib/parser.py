@@ -136,8 +136,8 @@ def parse(domainFilename, problemFilename):
 	print("\nObject list: " + str(problemDomain.objList))
 	print("\nInitial state: ")
 	"""
-	problemDomain.printState()
-	print("\n") 
+	#problemDomain.printState()
+	#print("\n") 
 	
 	"""
 	hop.declare_operators(*taskList) 
@@ -157,7 +157,7 @@ def parse(domainFilename, problemFilename):
 
 	"""
 	newState = problemDomain.state
-	print(hop.get_methods())
+	#print(hop.get_methods())
 
 	#hop.plan(newState,[('TURURU',"A", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
 	hop.plan(newState,[('MOVE_ROBOT',"Rob1", "R1")],hop.get_operators(),hop.get_methods(),verbose=1)
