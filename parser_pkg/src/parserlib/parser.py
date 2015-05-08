@@ -139,7 +139,7 @@ def parse(domainFilename, problemFilename):
 	#problemDomain.printState()
 	#print("\n") 
 	
-	"""
+	
 	hop.declare_operators(*taskList) 
 	hop.print_operators(hop.get_operators())
 
@@ -155,12 +155,9 @@ def parse(domainFilename, problemFilename):
 
 	hop.plan(newState,[('UNSTACK',"B", "A", "M1", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1) 
 
-	"""
-	newState = problemDomain.state
-	#print(hop.get_methods())
+	print(hop.get_methods())
 
-	#hop.plan(newState,[('TURURU',"A", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
-	hop.plan(newState,[('MOVE_ROBOT',"Rob1", "R1")],hop.get_operators(),hop.get_methods(),verbose=1)
+	hop.plan(newState,[('MOVE_ROBOT',"Rob1", "R3")],hop.get_operators(),hop.get_methods(),verbose=3)
 
 	
 

@@ -12,7 +12,7 @@ class Primitive (object):
 
 	def  __call__(self, State, *args):
 		if(self.checkArgs(State, args) == True):
-			if(self.checkPreconditions(State) == True):
+			if(self.checkPreconditions(State, self.preconditions) == True):
 				State1 = self.execPrimitiveEffects(State, args)
 				return State1
 		return False
@@ -39,7 +39,7 @@ class Primitive (object):
 
 
 
-	def checkPreconditions(self, State):
+	def checkPreconditions(self, State, preconditions):
 		if preconditions[0] == "and":
 			return self.checkPreconditionsAnd(State, preconditions[1:])
 		elif preconditions[0] == "or":
@@ -52,7 +52,6 @@ class Primitive (object):
 			for i in range(1, len(preconditions)):
 				#Filling the auxiliar list...
 				aux.append(self.linkedParams[preconditions[i]])
-			print aux
 			match = False
 			#Check with the state
 			for j in range(len(prec)):

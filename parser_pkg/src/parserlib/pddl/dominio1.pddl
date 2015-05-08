@@ -67,13 +67,6 @@
 		   (not (on ?x ?y))
 	     )
   )
-
-  (:action tururu
-	     :parameters (?x - block ?r - robot)
-	     :precondition ((handempty ?r))
-	     :effect
-	     ((holding ?x ?r))
-  )
  
  (:action go
 	     :parameters (?x - room ?y - room ?r - robot)
@@ -88,15 +81,15 @@
 	:parameters (?rob - robot ?r - room)
 	
   (:method Case1 ;;si el robot esta en la habitacion no se hace nada
-	 :precondition (and (robotPos ?r ?rob) (in B A))
+	 :precondition (robotPos ?r ?rob)
 	 :tasks ()
    )
 	 
    
    (:method Case2 ;;si no esta en la habitacion destino
-	  :precondition (robotPos ?r2 ?rob)
+	  :precondition (and (robotPos ?r2 ?rob) (conected ?r2 ?r))
 	  :tasks ( 
-	  (go ?r2 r rob)
+	  (go ?r2 ?r ?rob)
 	  )
 	)
 )

@@ -46,21 +46,20 @@ class Method(object):
 
 	def execCases(self, State, args):
 		for i in self.cases:
-
 			prec = self.cases[i][1]
 			tasks = self.cases[i][3]
 
-			#print prec
-			#print tasks
-			
-			if self.checkPreconditions(State, prec) == True:
-				pass
+			self.unifiedParams = {}
+			self.unify(State, prec)
+			if self.calculateVars(self.unifiedParams.keys(), State, prec) == True:
+				return self.formatTasks(tasks)
 
 		return False
 
 
+
+
 	def checkPreconditions(self, State, preconditions):
-		self.unify(State, preconditions)
 		if preconditions[0] == "and":
 			return self.checkPreconditionsAnd(State, preconditions[1:])
 		elif preconditions[0] == "or":
@@ -156,37 +155,63 @@ class Method(object):
 
 
 	def unify(self, State, preconditions):
- 		self.selectVars(State, preconditions)
+		if preconditions[0] == "and" or preconditions[0] == "or":
+			for i in range(1, len(preconditions)):
+				self.unify(State, preconditions[i])
+ 		else:
+ 			self.selectVars(State, preconditions)
 
 
- 	def selectVars(self, State, preconditions):
- 		print preconditions
-		for i in range(len(preconditions)):
-			aux = []
+ 	def selectVars(self, State, precondition):
+ 		predicates = getattr(State, precondition[0].upper(), False)
+ 		if predicates != False:	
+ 			aux = []
 			matches = 0
-			for j in range(1, len(preconditions[i])):
-				print preconditions[i][j]
-				if preconditions[i][j] in self.linkedParams:
+			for i in range(1, len(precondition)):
+				if precondition[i] in self.linkedParams:
 					matches += 1
-					aux.append(preconditions[i][j])
+					aux.append(self.linkedParams[precondition[i]])
 				else:
 					aux.append("__var__")
-			print preconditions[i][0]
-			predicates = getattr(State, preconditions[i][0].upper(), False)
-			print predicates
-			#print preconditions[i][0]
-			if predicates != False:	
-				for j in range(len(predicates)):	
-					auxMatchs = 0
-					for k in range(len(predicates[j])):
-						if aux[k] != "__var__":
-							if aux[k] == predicates[j][k]:
-								auxMatchs += 1
-					print auxMatchs
-					print matches
-					if auxMatchs == matches:
-						#Guardamos las variables en su sitio
-						#print predicates[j]
-						pass
+			for i in range(len(predicates)):
+				auxMatches = 0
+				for j in range(len(aux)):
+					if aux[j] != "__var__":
+						if self.linkedParams[precondition[j+1]] == predicates[i][j]:
+							auxMatches = auxMatches + 1
+				if auxMatches == matches:
+					for j in range(len(aux)):
+						if aux[j] == "__var__":
+							if precondition[j+1] in self.unifiedParams:
+								varAux = self.unifiedParams[precondition[j+1]]	
+								if not predicates[i][j] in varAux:
+									varAux.append(predicates[i][j])
+									self.unifiedParams.update({precondition[j+1]:varAux})
+							else:
+								varAux = []
+								varAux.append(predicates[i][j])
+								self.unifiedParams.update({precondition[j+1]: varAux})
 
 		
+	def calculateVars(self, pendingVars, state, preconditions):
+		if len(pendingVars) == 0:
+			return self.checkPreconditions(state, preconditions)
+		else:
+			values = self.unifiedParams[pendingVars[0]]
+			for i in range(len(values)):
+				self.linkedParams.update({pendingVars[0]:values[i]})
+				if self.calculateVars(pendingVars[1:], state, preconditions) == True:
+					return True
+
+		return False
+
+	def formatTasks(self, tasks):
+		formatedTasks = []
+		for i in range(len(tasks)):
+			aux = []
+			aux.append(tasks[i][0].upper())
+			for j in range(1, len(tasks[i])):
+				aux.append(self.linkedParams[tasks[i][j]])
+			formatedTasks.append(aux)
+		
+		return formatedTasks
