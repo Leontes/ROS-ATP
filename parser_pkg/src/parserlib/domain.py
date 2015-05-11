@@ -6,6 +6,7 @@ class Domain(object):
 	"""docstring for Domain"""
 	def __init__(self):
 		self.state = hop.State("Initial State")
+		self.objList = {}
 
 
 	def setName(self, name):
@@ -55,7 +56,6 @@ class Domain(object):
 			setattr(self.state, predicates[i][0].upper(), "__NON_DEFINED__")
 
 	def setObjects(self, objList):
-		self.objList = {}
 		for i in range(len(objList)):
 			if objList[i] == "-":
 				i += 2
@@ -67,13 +67,25 @@ class Domain(object):
 					self.objList.update({objList[i]:objList[j+1]})
 					break
 
+
+	def setGoals(self, goals):
+		self.goals  = goals
+
+
+	def getGoals(self):
+		return self.goals
+
+
 	def initState(self, initList):
 		for i in range(len(initList)):
 			#statePredicate = getattr(self.state, initList[i][0].upper(), False)
 			if getattr(self.state, initList[i][0].upper(), False) == False:
 				raise Exception(predicates[i][0].upper() + " predicate not defined")
 			elif getattr(self.state, initList[i][0].upper(), False) == "__NON_DEFINED__":
-				setattr(self.state, initList[i][0].upper(), [initList[i][1:]])
+				if len(initList[i][1:]) != 0:
+					setattr(self.state, initList[i][0].upper(), [initList[i][1:]])
+				else: 
+					setattr(self.state, initList[i][0].upper(), True)
 			else:
 				aux = getattr(self.state, initList[i][0].upper(), False)
 				aux.append(initList[i][1:])

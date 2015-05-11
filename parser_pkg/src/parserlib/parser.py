@@ -48,6 +48,16 @@ def makeMethods(tokens):
 		raise Exception("Parameters not defined")
 
 	hop.declare_methods(name.upper(), Method(name, problemDomain, parameters, cases))
+
+
+def makeGoals(tokens):
+	aux = []
+	tAux = ()
+	for i in range(len (tokens)):
+		tokens[i][0] = tokens[i][0].upper()
+		tAux = tuple(tokens[i])
+		aux.append(tAux)
+	return aux
 	
 
 def evaluateTokenList(tokens):
@@ -73,6 +83,9 @@ def evaluateTokenList(tokens):
 		else:
 			raise Exception("Trying to define types when :typing is not set in requirements")
 
+	elif tokens[0] == ":constants":
+		problemDomain.setObjects(tokens[1:])
+
 	elif tokens[0] == ":predicates":
 		problemDomain.setPredicates(tokens[1:])
 
@@ -92,10 +105,10 @@ def evaluateTokenList(tokens):
 		problemDomain.initState(tokens[1:])
 
 	elif tokens[0] == ":goal":
-		pass
+		problemDomain.setGoals(makeGoals(tokens[1:]))
 
 	else: 
-		raise Exception("Unexpected token " + tokens[0] + " received")
+		raise Exception("Unexpected token " + str(tokens[0]) + " received")
 
 
 def parse(domainFilename, problemFilename):
@@ -138,14 +151,16 @@ def parse(domainFilename, problemFilename):
 	"""
 	#problemDomain.printState()
 	#print("\n") 
-	
+	print("\nObject list: " + str(problemDomain.objList))
 	
 	hop.declare_operators(*taskList) 
-	hop.print_operators(hop.get_operators())
+	#hop.print_operators(hop.get_operators())
 
-	print("\n\n")
+	#print("\n\n")
 	newState = problemDomain.state
+	problemDomain.printState()
 
+	"""	
 	hop.plan(newState,[('UNSTACK',"B", "A", "M1", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
 
 	hop.plan(newState,[('GO',"P", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
@@ -154,10 +169,22 @@ def parse(domainFilename, problemFilename):
 	newState = taskList[4](newState, "P", "R1","Rob1")
 
 	hop.plan(newState,[('UNSTACK',"B", "A", "M1", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1) 
+	"""
 
-	print(hop.get_methods())
+	#print(hop.get_methods())
 
-	hop.plan(newState,[('MOVE_ROBOT',"Rob1", "R3")],hop.get_operators(),hop.get_methods(),verbose=3)
+	#hop.plan(newState,[('MOVE_ROBOT',"Rob1", "R3")],hop.get_operators(),hop.get_methods(),verbose=3)
+
+	#hop.plan(newState,[('GET',"C", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=3)
+	#hop.plan(newState,[('GET',"C", "Rob1"), ("GET", "B", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=3)
+	#hop.plan(newState,problemDomain.getGoals(),hop.get_operators(),hop.get_methods(),verbose=3)
+
+	hop.plan(problemDomain.state,[("TURURU", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
+
+	newState = taskList[5](problemDomain.state, "Rob1")
+	problemDomain.printState()
+
+
 
 	
 

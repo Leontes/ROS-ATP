@@ -33,6 +33,9 @@ class Method(object):
 					return False
 				else:
 					self.linkedParams.update({self.params[i][0]:arg[i]})
+		for k in self.domain.objList.keys():
+			self.linkedParams.update({k:k})
+			
 		return True
 
 
@@ -53,6 +56,8 @@ class Method(object):
 			self.unify(State, prec)
 			if self.calculateVars(self.unifiedParams.keys(), State, prec) == True:
 				return self.formatTasks(tasks)
+			else:
+				self.cleanLinkedParams()
 
 		return False
 
@@ -64,6 +69,9 @@ class Method(object):
 			return self.checkPreconditionsAnd(State, preconditions[1:])
 		elif preconditions[0] == "or":
 			return self.checkPreconditionsOr(State, preconditions[1:])
+		elif preconditions[0] == "not":
+			return not checkPreconditions(State, preconditions[1:])
+
 		prec = getattr(State, preconditions[0].upper(), False)
 		if prec == False:
 			raise Exception("Token " + str(preconditions[0]).upper() + " not defined")
@@ -93,6 +101,8 @@ class Method(object):
 				#Check the OR sublist
 				if self.checkPreconditionsOr(State, precondition[1:]) == False:
 					return False
+ 			elif precondition[0] == "not":
+ 				return not self.checkPreconditionsAnd(State, precondition[1:])
  			else:
  				#Check with the state
  				predicate = getattr(State, precondition[0].upper(), False)
@@ -128,6 +138,8 @@ class Method(object):
 					#Check the OR sublist
 					if self.checkPreconditionsAnd(State, precondition[1:]) == True:
 						return True
+				elif precondition[0] == "not":
+ 					return not self.checkPreconditionsAnd(State, precondition[1:])
 	 			else:
 	 				#Check with the state
 	 				predicate = getattr(State, precondition[0].upper(), False)
@@ -204,6 +216,12 @@ class Method(object):
 					return True
 
 		return False
+
+	def cleanLinkedParams(self):
+		for k in self.unifiedParams.keys():
+			if k in self.linkedParams:
+				del self.linkedParams[k]
+
 
 	def formatTasks(self, tasks):
 		formatedTasks = []

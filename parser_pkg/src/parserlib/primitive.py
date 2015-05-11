@@ -7,7 +7,10 @@ class Primitive (object):
 		self.domain = domain
 		self.setParameters(parameters)
 		self.preconditions = preconditions
-		self.effects = effects[1:]
+		if effects[0] == "and": 
+			self.effects = effects[1:]
+		else:
+			self.effects = [effects]
 
 
 	def  __call__(self, State, *args):
@@ -35,6 +38,10 @@ class Primitive (object):
 					return False
 				else:
 					self.linkedParams.update({self.params[i][0]:arg[i]})
+
+		for k in self.domain.objList.keys():
+			self.linkedParams.update({k:k})
+			
 		return True
 
 
@@ -44,6 +51,9 @@ class Primitive (object):
 			return self.checkPreconditionsAnd(State, preconditions[1:])
 		elif preconditions[0] == "or":
 			return self.checkPreconditionsOr(State, preconditions[1:])
+		elif preconditions[0] == "not":
+			return not checkPreconditions(State, preconditions[1:])
+
 		prec = getattr(State, preconditions[0].upper(), False)
 		if prec == False:
 			raise Exception("Token " + str(preconditions[0]).upper() + " not defined")
@@ -52,15 +62,19 @@ class Primitive (object):
 			for i in range(1, len(preconditions)):
 				#Filling the auxiliar list...
 				aux.append(self.linkedParams[preconditions[i]])
-			match = False
-			#Check with the state
-			for j in range(len(prec)):
-				if aux == prec[j]:
-					match = True
+			if len(aux) != 0:
+				match = False
+				#Check with the state
+				for j in range(len(prec)):
+					if aux == prec[j]:
+						match = True
 
-			return match
-
-
+				return match
+			else:
+				if prec == "__NON_DEFINED__" or prec == False:
+					return False
+				else:
+					return True
 
 
 	def checkPreconditionsAnd(self, State, preconditionAuxList):
@@ -73,6 +87,9 @@ class Primitive (object):
 				#Check the OR sublist
 				if self.checkPreconditionsOr(State, precondition[1:]) == False:
 					return False
+ 			elif precondition[0] == "not":
+ 				if not self.checkPreconditions(State, precondition[1:]) == False:
+ 					return False
  			else:
  				#Check with the state
  				predicate = getattr(State, precondition[0].upper(), False)
@@ -86,11 +103,16 @@ class Primitive (object):
  						#Filling the auxiliar list...
  						aux.append(self.linkedParams[precondition[j]])
  					match = False
- 					#Check with the state
- 					for j in range(len(predicate)):
- 						if aux == predicate[j]:
- 							match = True
- 					#if theres no match finish(its an AND we only need 1 missmatch to return False)
+ 					if len(aux) != 0:
+	 					#Check with the state
+	 					for j in range(len(predicate)):
+	 						if aux == predicate[j]:
+	 							match = True
+	 					#if theres no match finish(its an AND we only need 1 missmatch to return False)
+	 				else:
+						if prec == True:
+							match = True		
+
  					if match == False:
  						return False
 
@@ -108,6 +130,9 @@ class Primitive (object):
 					#Check the OR sublist
 					if self.checkPreconditionsAnd(State, precondition[1:]) == True:
 						return True
+				elif precondition[0] == "not":
+ 					if not self.checkPreconditions(State, precondition[1:]) == True:
+ 						return True
 	 			else:
 	 				#Check with the state
 	 				predicate = getattr(State, precondition[0].upper(), False)
@@ -121,10 +146,14 @@ class Primitive (object):
 	 						#Filling the auxiliar list...
 	 						aux.append(self.linkedParams[precondition[j]])
 	 					match = False
-	 					#Check with the state
-	 					for j in range(len(predicate)):
-	 						if aux == predicate[j]:
-	 							match = True
+	 					if len(aux) != 0:
+		 					#Check with the state
+		 					for j in range(len(predicate)):
+		 						if aux == predicate[j]:
+		 							match = True
+		 				else:
+							if prec == True:
+								match = True
 	 					#if theres no match finish(its an OR we only need 1 match to return True)
 	 					if match == True:
 	 						return True
@@ -139,7 +168,7 @@ class Primitive (object):
 		newState = State
 		for i in range(len(self.effects)):
 			effect = self.effects[i]
-
+			print effect
 			if effect[0] == "not":
 				effect = effect[1]
 				aux = []
@@ -147,15 +176,21 @@ class Primitive (object):
 	 				aux.append(self.linkedParams[effect[j]])
 
 	 			auxEffect = getattr(newState, effect[0].upper(), False)
-				if auxEffect != False:
-					if auxEffect != "__NON_DEFINED__":
-						auxEffect.append(aux)
-						setattr(newState, effect[0].upper(), auxEffect)
+	 			if len(aux) != 0:
+		 			eraseList= []
+					if auxEffect != False:
+						if auxEffect != "__NON_DEFINED__":
+							for k in range(len(auxEffect)):
+								if aux != auxEffect[k]:
+									eraseList.append(auxEffect[k])
+							setattr(newState, effect[0].upper(), eraseList)
+						else:
+							auxEffect = aux
+							setattr(newState, effect[0].upper(), auxEffect)
 					else:
-						auxEffect = aux
-						setattr(newState, effect[0].upper(), auxEffect)
+						raise Exception(effect[0].upper() + " predicate not defined")
 				else:
-					raise Exception(effect[0].upper() + " predicate not defined")
+					setattr(newState, effect[0].upper(), False)
 
 			else:
 				aux = []
@@ -163,15 +198,18 @@ class Primitive (object):
 	 				aux.append(self.linkedParams[effect[j]])
 
 	 			auxEffect = getattr(newState, effect[0].upper(), False)
-				if auxEffect != False:
-					if auxEffect != "__NON_DEFINED__":
-						auxEffect.append(aux)
-						setattr(newState, effect[0].upper(), auxEffect)
+	 			if len(aux) != 0:
+					if auxEffect != False:
+						if auxEffect != "__NON_DEFINED__":
+							auxEffect.append(aux)
+							setattr(newState, effect[0].upper(), auxEffect)
+						else:
+							auxEffect = aux
+							setattr(newState, effect[0].upper(), auxEffect)
 					else:
-						auxEffect = aux
-						setattr(newState, effect[0].upper(), auxEffect)
+						raise Exception(effect[0].upper() + " predicate not defined")
 				else:
-					raise Exception(effect[0].upper() + " predicate not defined")
+					setattr(newState, effect[0].upper(), True)
 
 		return newState
 		

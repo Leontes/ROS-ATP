@@ -5,6 +5,7 @@
 (define (domain BLOCKSANDROBOT1)
   (:requirements :strips :typing)
   (:types block room table robot)
+  (:constants miau - table)
   (:predicates (on ?x - block ?y - block)
 	       (ontable ?x - block)
 	       (clear ?x - block)
@@ -14,6 +15,7 @@
 	       (in ?x - table ?y - room)
 	       (robotPos ?x - room ?r - robot)
 	       (blockInTable ?x - block ?y - table)
+	       (predPrueba)
   )
 
   (:action pick-up
@@ -72,9 +74,15 @@
 	     :parameters (?x - room ?y - room ?r - robot)
 	     :precondition (and (robotPos ?x ?r) (conected ?x ?y))
 	     :effect
-	     (and (not(robotPos ?x ?r))
+	     (and (not (robotPos ?x ?r))
 		  (robotPos ?y ?r)
 	     )
+ )
+
+ (:action tururu
+ 	:parameters (?rob1 - robot)
+ 	:precondition (predPrueba)
+ 	:effect (not(predPrueba))
  )
 
  (:task move_robot
@@ -92,5 +100,32 @@
 	  (go ?r2 ?r ?rob)
 	  )
 	)
+
+	(:method Case3 ;;Si no esta en la posicion de destino y debe cruzar por otro lado
+		:precondition (and(robotPos ?r2 ?rob) (conected ?r2 ?r3) (conected ?r3 ?r))
+		:tasks (
+		(go ?r2 ?r3 ?rob)
+		(go ?r3 ?r ?rob)
+		)
+	)
 )
+	(:task get
+		:parameters(?x - block ?rob - robot)
+		(:method Case1
+			:precondition (and(ONTABLE ?x) (CLEAR ?x) (BLOCKINTABLE ?x ?t) (IN ?t ?room))
+			:tasks( 
+				(move_robot ?rob ?room)
+				(pick-up ?x ?t ?room ?rob)
+			)
+		)
+
+		(:method Case2
+			:precondition (and(ON ?x ?y) (CLEAR ?x) (BLOCKINTABLE ?x ?t) (BLOCKINTABLE ?y ?t) (IN ?t ?room))
+			:tasks( 
+				(move_robot ?rob ?room)
+				(unstack ?x ?y ?t ?room ?rob)
+			)
+		)
+
+	)
 )
