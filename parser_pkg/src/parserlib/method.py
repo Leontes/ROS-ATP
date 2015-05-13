@@ -70,8 +70,7 @@ class Method(object):
 		elif preconditions[0] == "or":
 			return self.checkPreconditionsOr(State, preconditions[1:])
 		elif preconditions[0] == "not":
-			return not checkPreconditions(State, preconditions[1:])
-
+			return self.checkPreconditionsNot(State, preconditions[1:])
 		prec = getattr(State, preconditions[0].upper(), False)
 		if prec == False:
 			raise Exception("Token " + str(preconditions[0]).upper() + " not defined")
@@ -80,15 +79,50 @@ class Method(object):
 			for i in range(1, len(preconditions)):
 				#Filling the auxiliar list...
 				aux.append(self.linkedParams[preconditions[i]])
-			match = False
-			#Check with the state
-			for j in range(len(prec)):
-				if aux == prec[j]:
-					match = True
+			if len(aux) != 0:
+				match = False
+				#Check with the state
+				for j in range(len(prec)):
+					if aux == prec[j]:
+						match = True
 
-			return match
+				return match
+			else:
+				if prec == "__NON_DEFINED__" or prec == False:
+					return False
+				else:
+					return True
 
 
+	def checkPreconditionsNot(self, State, preconditionAuxList):
+		preconditions = preconditionAuxList[0]
+		if preconditions[0] == "and":
+			return not self.checkPreconditionsAnd(State, preconditions[1:])
+		elif preconditions[0] == "or":
+			return not self.checkPreconditionsOr(State, preconditions[1:])
+		elif preconditions[0] == "not":
+			return not self.checkPreconditionsNot(State, preconditions[1:])
+		prec = getattr(State, preconditions[0].upper(), False)
+		if prec == False:
+			raise Exception("Token " + str(preconditions[0]).upper() + " not defined")
+		else:
+			aux = []
+			for i in range(1, len(preconditions)):
+				#Filling the auxiliar list...
+				aux.append(self.linkedParams[preconditions[i]])
+			if len(aux) != 0:
+				match = False
+				#Check with the state
+				for j in range(len(prec)):
+					if aux == prec[j]:
+						match = True
+
+				return not match
+			else:
+				if prec == "__NON_DEFINED__" or prec == False:
+					return True
+				else:
+					return False
 
 
 	def checkPreconditionsAnd(self, State, preconditionAuxList):
@@ -101,8 +135,9 @@ class Method(object):
 				#Check the OR sublist
 				if self.checkPreconditionsOr(State, precondition[1:]) == False:
 					return False
- 			elif precondition[0] == "not":
- 				return not self.checkPreconditionsAnd(State, precondition[1:])
+			elif precondition[0] == "not":
+				if self.checkPreconditionsNot(State, precondition[1:]) == False:
+					return False
  			else:
  				#Check with the state
  				predicate = getattr(State, precondition[0].upper(), False)
@@ -116,11 +151,16 @@ class Method(object):
  						#Filling the auxiliar list...
  						aux.append(self.linkedParams[precondition[j]])
  					match = False
- 					#Check with the state
- 					for j in range(len(predicate)):
- 						if aux == predicate[j]:
- 							match = True
- 					#if theres no match finish(its an AND we only need 1 missmatch to return False)
+ 					if len(aux) != 0:
+	 					#Check with the state
+	 					for j in range(len(predicate)):
+	 						if aux == predicate[j]:
+	 							match = True
+	 					#if theres no match finish(its an AND we only need 1 missmatch to return False)
+	 				else:
+						if predicate == True:
+							match = True		
+
  					if match == False:
  						return False
 
@@ -139,7 +179,8 @@ class Method(object):
 					if self.checkPreconditionsAnd(State, precondition[1:]) == True:
 						return True
 				elif precondition[0] == "not":
- 					return not self.checkPreconditionsAnd(State, precondition[1:])
+					if self.checkPreconditionsNot(State, precondition[1:]) == True:
+						return True
 	 			else:
 	 				#Check with the state
 	 				predicate = getattr(State, precondition[0].upper(), False)
@@ -153,10 +194,14 @@ class Method(object):
 	 						#Filling the auxiliar list...
 	 						aux.append(self.linkedParams[precondition[j]])
 	 					match = False
-	 					#Check with the state
-	 					for j in range(len(predicate)):
-	 						if aux == predicate[j]:
-	 							match = True
+	 					if len(aux) != 0:
+		 					#Check with the state
+		 					for j in range(len(predicate)):
+		 						if aux == predicate[j]:
+		 							match = True
+		 				else:
+							if predicate == True:
+								match = True
 	 					#if theres no match finish(its an OR we only need 1 match to return True)
 	 					if match == True:
 	 						return True
@@ -170,6 +215,8 @@ class Method(object):
 		if preconditions[0] == "and" or preconditions[0] == "or":
 			for i in range(1, len(preconditions)):
 				self.unify(State, preconditions[i])
+		elif preconditions[0] == "not":
+			self.unify(State, preconditions[1:][0])
  		else:
  			self.selectVars(State, preconditions)
 
@@ -203,6 +250,8 @@ class Method(object):
 								varAux = []
 								varAux.append(predicates[i][j])
 								self.unifiedParams.update({precondition[j+1]: varAux})
+		else:
+			raise Exception(precondition[0].upper() + " not defined")
 
 		
 	def calculateVars(self, pendingVars, state, preconditions):

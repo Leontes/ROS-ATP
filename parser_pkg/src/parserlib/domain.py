@@ -7,6 +7,8 @@ class Domain(object):
 	def __init__(self):
 		self.state = hop.State("Initial State")
 		self.objList = {}
+		self.taskList = []
+		self.methodList = {}
 
 
 	def setName(self, name):
@@ -92,7 +94,12 @@ class Domain(object):
 				setattr(self.state, initList[i][0].upper(), aux)
 
 
+	def setTasks(self, task):
+		self.taskList.append(task)
 
+
+	def setMethods(self, methodName, method):
+		self.methodList.update({methodName:method})
 
 
 	def printState(self):

@@ -3,7 +3,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define (domain BLOCKSANDROBOT1)
-  (:requirements :strips :typing)
+  (:requirements :strips :typing :adl)
   (:types block room table robot)
   (:constants miau - table)
   (:predicates (on ?x - block ?y - block)
@@ -79,12 +79,6 @@
 	     )
  )
 
- (:action tururu
- 	:parameters (?rob1 - robot)
- 	:precondition (predPrueba)
- 	:effect (not(predPrueba))
- )
-
  (:task move_robot
 	:parameters (?rob - robot ?r - room)
 	
@@ -112,7 +106,7 @@
 	(:task get
 		:parameters(?x - block ?rob - robot)
 		(:method Case1
-			:precondition (and(ONTABLE ?x) (CLEAR ?x) (BLOCKINTABLE ?x ?t) (IN ?t ?room))
+			:precondition (and(ONTABLE ?x) (not(CLEAR ?x)) (BLOCKINTABLE ?x ?t) (IN ?t ?room))
 			:tasks( 
 				(move_robot ?rob ?room)
 				(pick-up ?x ?t ?room ?rob)

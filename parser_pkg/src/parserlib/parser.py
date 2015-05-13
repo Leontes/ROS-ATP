@@ -6,10 +6,6 @@ from parserlib.symbols import *
 from parserlib.primitive import *
 from parserlib.method import *
 
-from pyhop import hop
-
-
-taskList = []
 
 defined = False
 
@@ -28,7 +24,7 @@ def makePrimitives(tokens):
 	if effect == []:
 		raise Exception("Effects not defined")
 
-	taskList.append(Primitive(name, problemDomain, parameters, precondition, effect))
+	problemDomain.setTasks(Primitive(name, problemDomain, parameters, precondition, effect))
 
 
 def makeMethods(tokens):
@@ -47,7 +43,7 @@ def makeMethods(tokens):
 	if cases == []:
 		raise Exception("Parameters not defined")
 
-	hop.declare_methods(name.upper(), Method(name, problemDomain, parameters, cases))
+	problemDomain.setMethods(name.upper(), Method(name, problemDomain, parameters, cases))
 
 
 def makeGoals(tokens):
@@ -113,83 +109,22 @@ def evaluateTokenList(tokens):
 
 def parse(domainFilename, problemFilename):
 	with open(domainFilename) as domainPddlFile:
-		#print(pddlFile.read())
 		tkGen = tokenGenerator(domainPddlFile)
 		tokens = tkGen.readAll()
-		#evaluateTokenList(tokens)
 
 		while tokens != eof_object:
 			for i in range(len(tokens)):
-				#print(tokens[i])
-				#print (i)
-
-				#print("\n" + "---------------------------------------------")
-				evaluateTokenList(tokens[i])
-				#print("---------------------------------------------")
+				evaluateTokenList(tokens[i])	
 			tokens = tkGen.readAll() 
 
 	with open(problemFilename) as problemPddlFile:
-		#print(pddlFile.read())
 		tkGen = tokenGenerator(problemPddlFile)
 		tokens = tkGen.readAll()
-		#evaluateTokenList(tokens)
 
 		while tokens != eof_object:
 			for i in range(len(tokens)):
 				evaluateTokenList(tokens[i])
 			tokens = tkGen.readAll()
-	""""
-	print("Domain name: " + problemDomain.name)
-	print("Problem name: " + problemDomain.problemName)
-	print(":strips enabled: " + str(problemDomain.strips))
-	print(":equility enabled: " + str(problemDomain.equility))
-	print(":typing enabled: "+ str(problemDomain.typing))
-	print(":adl enabled: " + str(problemDomain.adl))
-	print("\nTypes defined: " + str(problemDomain.types))
-	print("\nObject list: " + str(problemDomain.objList))
-	print("\nInitial state: ")
-	"""
-	#problemDomain.printState()
-	#print("\n") 
-	print("\nObject list: " + str(problemDomain.objList))
-	
-	hop.declare_operators(*taskList) 
-	#hop.print_operators(hop.get_operators())
-
-	#print("\n\n")
-	newState = problemDomain.state
-	problemDomain.printState()
-
-	"""	
-	hop.plan(newState,[('UNSTACK',"B", "A", "M1", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
-
-	hop.plan(newState,[('GO',"P", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
-
-	print("Aplicamos la task: " + taskList[4].__name__ + " con los parametros [P, R1, Rob1] y probamos a generar un plan para la tarea anterior \n")
-	newState = taskList[4](newState, "P", "R1","Rob1")
-
-	hop.plan(newState,[('UNSTACK',"B", "A", "M1", "R1", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1) 
-	"""
-
-	#print(hop.get_methods())
-
-	#hop.plan(newState,[('MOVE_ROBOT',"Rob1", "R3")],hop.get_operators(),hop.get_methods(),verbose=3)
-
-	#hop.plan(newState,[('GET',"C", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=3)
-	#hop.plan(newState,[('GET',"C", "Rob1"), ("GET", "B", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=3)
-	#hop.plan(newState,problemDomain.getGoals(),hop.get_operators(),hop.get_methods(),verbose=3)
-
-	hop.plan(problemDomain.state,[("TURURU", "Rob1")],hop.get_operators(),hop.get_methods(),verbose=1)
-
-	newState = taskList[5](problemDomain.state, "Rob1")
-	problemDomain.printState()
 
 
-
-	
-
-
-if __name__ == '__main__':
-
-	parse("src/PFG/parser_pkg/src/parserlib/pddl/dominio1.pddl", "src/PFG/parser_pkg/src/parserlib/pddl/problema1.pddl")
-
+	return problemDomain

@@ -52,8 +52,7 @@ class Primitive (object):
 		elif preconditions[0] == "or":
 			return self.checkPreconditionsOr(State, preconditions[1:])
 		elif preconditions[0] == "not":
-			return not checkPreconditions(State, preconditions[1:])
-
+			return self.checkPreconditionsNot(State, preconditions[1:])
 		prec = getattr(State, preconditions[0].upper(), False)
 		if prec == False:
 			raise Exception("Token " + str(preconditions[0]).upper() + " not defined")
@@ -77,6 +76,37 @@ class Primitive (object):
 					return True
 
 
+	def checkPreconditionsNot(self, State, preconditionAuxList):
+		preconditions = preconditionAuxList[0]
+		if preconditions[0] == "and":
+			return not self.checkPreconditionsAnd(State, preconditions[1:])
+		elif preconditions[0] == "or":
+			return not self.checkPreconditionsOr(State, preconditions[1:])
+		elif preconditions[0] == "not":
+			return not self.checkPreconditionsNot(State, preconditions[1:])
+		prec = getattr(State, preconditions[0].upper(), False)
+		if prec == False:
+			raise Exception("Token " + str(preconditions[0]).upper() + " not defined")
+		else:
+			aux = []
+			for i in range(1, len(preconditions)):
+				#Filling the auxiliar list...
+				aux.append(self.linkedParams[preconditions[i]])
+			if len(aux) != 0:
+				match = False
+				#Check with the state
+				for j in range(len(prec)):
+					if aux == prec[j]:
+						match = True
+
+				return not match
+			else:
+				if prec == "__NON_DEFINED__" or prec == False:
+					return True
+				else:
+					return False
+
+
 	def checkPreconditionsAnd(self, State, preconditionAuxList):
 		#For all preconditions
 		for i in range(len(preconditionAuxList)):
@@ -87,9 +117,9 @@ class Primitive (object):
 				#Check the OR sublist
 				if self.checkPreconditionsOr(State, precondition[1:]) == False:
 					return False
- 			elif precondition[0] == "not":
- 				if not self.checkPreconditions(State, precondition[1:]) == False:
- 					return False
+			elif precondition[0] == "not":
+				if self.checkPreconditionsNot(State, precondition[1:]) == False:
+					return False
  			else:
  				#Check with the state
  				predicate = getattr(State, precondition[0].upper(), False)
@@ -110,7 +140,7 @@ class Primitive (object):
 	 							match = True
 	 					#if theres no match finish(its an AND we only need 1 missmatch to return False)
 	 				else:
-						if prec == True:
+						if predicate == True:
 							match = True		
 
  					if match == False:
@@ -131,8 +161,8 @@ class Primitive (object):
 					if self.checkPreconditionsAnd(State, precondition[1:]) == True:
 						return True
 				elif precondition[0] == "not":
- 					if not self.checkPreconditions(State, precondition[1:]) == True:
- 						return True
+					if self.checkPreconditionsNot(State, precondition[1:]) == True:
+						return True
 	 			else:
 	 				#Check with the state
 	 				predicate = getattr(State, precondition[0].upper(), False)
@@ -152,7 +182,7 @@ class Primitive (object):
 		 						if aux == predicate[j]:
 		 							match = True
 		 				else:
-							if prec == True:
+							if predicate == True:
 								match = True
 	 					#if theres no match finish(its an OR we only need 1 match to return True)
 	 					if match == True:
@@ -168,7 +198,6 @@ class Primitive (object):
 		newState = State
 		for i in range(len(self.effects)):
 			effect = self.effects[i]
-			print effect
 			if effect[0] == "not":
 				effect = effect[1]
 				aux = []
