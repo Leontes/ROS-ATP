@@ -1,8 +1,42 @@
 #!/usr/bin/python
 
+"""
+primitive.py - Version 1.0 2015-05-15
+
+Executable class thats implements a generic pyhop task
+
+Copyright (c) 2015 Jose Angel Segura Muros.  All rights reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+"""
+
 class Primitive (object):
-	"""docstring for primitive """
+	""" class Primitive
+
+	"""
+
+
 	def __init__(self, name, domain, parameters, preconditions, effects):
+		""" Construct a object of the class Primitive
+
+		Keyword arguments:
+		name -- String, name of the task
+		domain -- Domain object asociated to the task
+		parameters -- Token stream with the parameters of the task
+		preconditions -- Token stream with the preconditions of the task
+		effects -- Token stream with the effects of the task
+		"""
 		self.__name__ = name.upper()
 		self.domain = domain
 		self.setParameters(parameters)
@@ -14,13 +48,25 @@ class Primitive (object):
 
 
 	def  __call__(self, State, *args):
+		""" Executes the task object
+
+		Keyword arguments:
+		State -- Pyhop State object 
+		args -- Arguments of the execution
+		"""
 		if(self.checkArgs(State, args) == True):
 			if(self.checkPreconditions(State, self.preconditions) == True):
 				State1 = self.execPrimitiveEffects(State, args)
 				return State1
 		return False
 
+
 	def setParameters(self, parameters):
+		""" Set the parameters of the task
+
+		Keyword arguments:
+		parameters -- Token stream with the info of the parameters
+		"""
 		self.params = []
 		for i in range(len(parameters)):
 			if parameters[i] == "-":
@@ -31,6 +77,12 @@ class Primitive (object):
 
 
 	def checkArgs(self, state, *args):
+		""" Check the arguments used to call the task
+
+		Keyword arguments:
+		state -- Pyhop State object
+		args -- Arguments of the execution
+		"""
 		self.linkedParams = {}
 		for arg in args:
 			for i in range(len(arg)):
@@ -47,14 +99,21 @@ class Primitive (object):
 
 
 	def checkPreconditions(self, State, preconditions):
+		""" Checks the given preconditions with que state
+
+		Keyword arguments:
+		State -- Pyhop State object
+		preconditions -- Token stream with the preconditions list
+		"""
+
 		if preconditions[0] == "and":
 			return self.checkPreconditionsAnd(State, preconditions[1:])
 		elif preconditions[0] == "or":
 			return self.checkPreconditionsOr(State, preconditions[1:])
 		elif preconditions[0] == "not":
 			return self.checkPreconditionsNot(State, preconditions[1:])
-		prec = getattr(State, preconditions[0].upper(), False)
-		if prec == False:
+		prec = getattr(State, preconditions[0].upper(), "Predicate_not_defined")
+		if prec == "Predicate_not_defined":
 			raise Exception("Token " + str(preconditions[0]).upper() + " not defined")
 		else:
 			aux = []
@@ -77,6 +136,12 @@ class Primitive (object):
 
 
 	def checkPreconditionsNot(self, State, preconditionAuxList):
+		""" Checks the given NOT precondition with que state
+
+		Keyword arguments:
+		State -- Pyhop State object
+		preconditions -- Token stream with the preconditions list
+		"""
 		preconditions = preconditionAuxList[0]
 		if preconditions[0] == "and":
 			return not self.checkPreconditionsAnd(State, preconditions[1:])
@@ -84,8 +149,8 @@ class Primitive (object):
 			return not self.checkPreconditionsOr(State, preconditions[1:])
 		elif preconditions[0] == "not":
 			return not self.checkPreconditionsNot(State, preconditions[1:])
-		prec = getattr(State, preconditions[0].upper(), False)
-		if prec == False:
+		prec = getattr(State, preconditions[0].upper(), "Predicate_not_defined")
+		if prec == "Predicate_not_defined":
 			raise Exception("Token " + str(preconditions[0]).upper() + " not defined")
 		else:
 			aux = []
@@ -108,6 +173,12 @@ class Primitive (object):
 
 
 	def checkPreconditionsAnd(self, State, preconditionAuxList):
+		""" Checks the given AND precondition with que state
+
+		Keyword arguments:
+		State -- Pyhop State object
+		preconditionAuxList -- Token stream with the preconditions list
+		"""
 		#For all preconditions
 		for i in range(len(preconditionAuxList)):
 			#Take 1
@@ -122,9 +193,9 @@ class Primitive (object):
 					return False
  			else:
  				#Check with the state
- 				predicate = getattr(State, precondition[0].upper(), False)
+ 				predicate = getattr(State, precondition[0].upper(), "Predicate_not_defined")
  				#Lexic control
- 				if predicate == False:
+ 				if predicate == "Predicate_not_defined":
  					raise Exception(precondition[0].upper() + " not defined")
  				else:
  					#Auxiliar list with the parameters
@@ -150,6 +221,12 @@ class Primitive (object):
 
 
 	def checkPreconditionsOr(self, State, preconditionAuxList):
+		""" Checks the given OR precondition with que state
+
+		Keyword arguments:
+		State -- Pyhop State object
+		preconditionAuxList -- Token stream with the preconditions list
+		"""
 		if self.domain.adl == True:
 			#For all preconditions
 			for i in range(len(preconditionAuxList)):
@@ -165,9 +242,9 @@ class Primitive (object):
 						return True
 	 			else:
 	 				#Check with the state
-	 				predicate = getattr(State, precondition[0].upper(), False)
+	 				predicate = getattr(State, precondition[0].upper(), "Predicate_not_defined")
 	 				#Lexic control
-	 				if predicate == False:
+	 				if predicate == "Predicate_not_defined":
 	 					raise Exception(precondition[0].upper() + " not defined")
 	 				else:
 	 					#Auxiliar list with the parameters
@@ -194,6 +271,13 @@ class Primitive (object):
 
 
 	def execPrimitiveEffects(self, State, *args):
+		""" Modifies a given state with the call arguments and the programmed effects
+		of the task
+
+		Keyword arguments:
+		state -- Pyhop State object
+		args -- Arguments of the execution
+		"""
 		effect = []
 		newState = State
 		for i in range(len(self.effects)):
@@ -204,10 +288,10 @@ class Primitive (object):
 	 			for j in range(1, len(effect)):
 	 				aux.append(self.linkedParams[effect[j]])
 
-	 			auxEffect = getattr(newState, effect[0].upper(), False)
+	 			auxEffect = getattr(newState, effect[0].upper(), "Predicate_not_defined")
 	 			if len(aux) != 0:
 		 			eraseList= []
-					if auxEffect != False:
+					if auxEffect != "Predicate_not_defined":
 						if auxEffect != "__NON_DEFINED__":
 							for k in range(len(auxEffect)):
 								if aux != auxEffect[k]:
@@ -226,14 +310,15 @@ class Primitive (object):
 	 			for j in range(1, len(effect)):
 	 				aux.append(self.linkedParams[effect[j]])
 
-	 			auxEffect = getattr(newState, effect[0].upper(), False)
+	 			auxEffect = getattr(newState, effect[0].upper(), "Predicate_not_defined")
 	 			if len(aux) != 0:
-					if auxEffect != False:
+					if auxEffect != "Predicate_not_defined":
 						if auxEffect != "__NON_DEFINED__":
 							auxEffect.append(aux)
 							setattr(newState, effect[0].upper(), auxEffect)
 						else:
-							auxEffect = aux
+							auxEffect = []
+							auxEffect.append(aux)
 							setattr(newState, effect[0].upper(), auxEffect)
 					else:
 						raise Exception(effect[0].upper() + " predicate not defined")

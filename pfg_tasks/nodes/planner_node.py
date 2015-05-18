@@ -27,8 +27,7 @@ from __future__ import print_function
 import rospy
 
 from pyhop import hop
-from user_files.factory_methods import *
-from user_files.factory_operators import *
+from parserlib import parser
 from pi_trees_lib.pi_trees_lib import *
 from description.enviroment_setup import * 
 from pfg_tasks import global_vars
@@ -64,20 +63,20 @@ def makeTree(plan):
 	for i in range(len(plan)):
 		#If the task is the movement task
 		if plan[i][0] == global_vars.black_board.movementTask:
-			coord = global_vars.black_board.getCoords(plan[i][1])
+			coord = global_vars.black_board.getCoords(plan[i][2])
 			if coord != False:
 				#Creates a super node to hold the task
 				actionTask = Sequence("Action " + str(i+1))
 
 				#Creates a movement task and adds it to the actionTask 
 				#with the corresponding setDoneTask
-				actionTask.add_child(goToTask("MoveToTask: " + plan[i][1], coord))
+				actionTask.add_child(goToTask("MoveToTask: " + plan[i][2], coord))
 				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i))
 
 				#Adds the actionTask to the plan
 				planTask.add_child(actionTask)
 				#Updates the robot position
-				lastPlace = plan[i][1]
+				lastPlace = plan[i][2]
 			else:
 				raise ValueError("Place not defined in the black board")
 			
@@ -128,24 +127,18 @@ def runRobot():
  	Initializes all the variables needed for the application, calls for a plan,
  	makes the behaviour tree and runs it.
  	"""
- 	#Initialize the first state of the problem
-	state = hop.State('state')
-	state.types={'piece1':'type1'}
-	state.position={'piece1':'storehouse', 'robot':'storehouse'}
-	state.ocupied={'robot':False, 'workstation1':False}
-	state.stationAcepts={'workstation1':'type1'}
-	state.stationProduces={'workstation1':'type2'}
+	
 
-	#Initialize the goal state of the problem
-	goal = hop.Goal('goal')
-	goal.types={'piece1':'type2'}
-	goal.position={'piece1':'storehouse', 'robot':'storehouse'}
-	goal.ocupied={'robot':False, 'workstation1':False}
+	domain = parser.parse(sys.argv[1], sys.argv[2])
 
+	hop.declare_operators(*(domain.taskList))
+	for k in domain.methodList.keys():
+			hop.declare_methods(k, domain.methodList[k])
 
 	#Calculates the plan for the given state and goal
-	plan = hop.plan(state,[('work', goal)], hop.get_operators(), 
-		hop.get_methods(), verbose=0)
+	plan = hop.plan(domain.state,domain.getGoals(),hop.get_operators(),
+		hop.get_methods(),verbose=0)
+
 
 	if plan != False:
 
@@ -173,6 +166,7 @@ def runRobot():
 			Tree.run()
 			rospy.sleep(0.1)
 	else:
+		print("Empty plan generated")
 		raise ValueError("Empty plan generated")
 
 
@@ -194,7 +188,10 @@ if __name__ == '__main__':
 	"""Main funcion of the node
 	
 	"""
-	try:
-		runRobot()
-	except ValueError, rospy.ROSInterruptException:
-		rospy.loginfo("Robot running finished.")
+	if len(sys.argv) < 3:
+		print("Usage: rosrun pfg_tasks planner_node.py domain.pddl problem.pddl")
+	else:
+		try:
+			runRobot()
+		except ValueError, rospy.ROSInterruptException:
+			rospy.loginfo("Robot running finished.")

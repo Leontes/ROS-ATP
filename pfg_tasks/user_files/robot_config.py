@@ -13,28 +13,27 @@ def getConfig():
 	"""
 
 	#Indicates the movement action defined in the planification domain
-	global_vars.black_board.setMovementTask('moveRobot')
+	global_vars.black_board.setMovementTask('GO')
 
 	#Indicates the relation between a action of the plan and a executable task
-	global_vars.black_board.setTask('pickUp',
+	global_vars.black_board.setTask('PICK_UP',
 		spinRightTask(name = 'pickUpTask', timer=60))
-	global_vars.black_board.setTask('putDown',
+	global_vars.black_board.setTask('PUT_DOWN',
 		spinLeftTask(name = 'putDownTask', timer=60))
-	global_vars.black_board.setTask('load',
+	global_vars.black_board.setTask('LOAD',
 		spinLeftTask(name = 'loadTask', timer=40))
-	global_vars.black_board.setTask('unLoad',
+	global_vars.black_board.setTask('UNLOAD',
 		spinRightTask(name = 'unLoadTask', timer=40))
-	global_vars.black_board.setTask('useWorkstation',
+	global_vars.black_board.setTask('TRANSFORM',
 		sleepTask(name = 'useWorkstationTask', timer = 5))
 	#global_vars.black_board.setTask('actionName', 
 		#task(param1 = value1, param2 = value2, ...))
-
 
 	#Indicates the [x,y] coordinates in the simulator of any entity 
 	#in the planification domain
 	global_vars.black_board.setCoords("robot", 0, 0)
 	global_vars.black_board.setCoords("storehouse", 0, 0)
-	global_vars.black_board.setCoords("workstation1", 2, 1)
+	global_vars.black_board.setCoords("workshop1", 2, 1)
 	global_vars.black_board.setCoords("dock", 0.5, 0.5)
 	#global_vars.black_board.setCoords("entity", xValue, yValue)
 
