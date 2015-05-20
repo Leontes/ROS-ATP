@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-black_board.py - Version 0.7 2015-04-14
+black_board.py - Version 0.8 2015-04-14
 
 Class designed as a intermediate between the htn planner 
 and the beaviour tree
@@ -37,11 +37,13 @@ class BlackBoard(object):
 	def __init__ (self):
 		self.task_list = {}
 		self.movementTask = False
+		self.destArg = -1
 		self.worldCoords = {}
 		self.world = False
 		self.worldOperators = {}
 		self.routinesList = []
 		self.taskDone = []
+		self.rePlan = False
 
 
 	def setTask(self, action, task):
@@ -65,13 +67,14 @@ class BlackBoard(object):
 			return False
 
 
-	def setMovementTask(self, action):
+	def setMovementTask(self, action, destArg):
 		""" Creates a reference to the movement task of the plan in the BlackBoard
 
 		Keyword arguments:
 		action -- String indicating the name of the movement action in the pddl domain
 		"""
 		self.movementTask = action
+		self.destArg = destArg
 
 	
 	def setRoutine(self, routine):
@@ -131,6 +134,38 @@ class BlackBoard(object):
 			return self.worldCoords[entity]
 		else:
 			return False
+
+
+	def setWorld(self, state):
+		""" Sets current world logic representation of the world in the black board
+
+		Keyword arguments:
+		state -- Pyhop State to be the new world
+		"""
+		self.world = state
+
+
+	def getWorld(self):
+		""" Returns the current world set in the black board
+
+		"""
+		return self.world
+
+
+	def setsReplan(self, flag):
+		""" Sets in the black board if its needed to make a replanification
+
+		Keyword arguments:
+		flag -- boolean, sets the rePlan flag to the given value
+		"""
+		self.rePlan = flag
+
+
+	def rePlanNeeded(self):
+		""" Returns if the system needs replanification
+
+		"""
+		return self.rePlan
 
 
 	def getAllCoords(self):

@@ -24,7 +24,6 @@ limitations under the License.
 
 from parserlib.tokenGenerator import *
 from parserlib.domain import *
-from parserlib.symbols import *
 from parserlib.primitive import *
 from parserlib.method import *
 

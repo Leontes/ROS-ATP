@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-planner_node.py - Version 0.7 2015-04-14
+planner_node.py - Version 1.0 2015-04-14
 
 Executes a robot using behaviour trees and a HTN planner
 
@@ -63,14 +63,16 @@ def makeTree(plan):
 	for i in range(len(plan)):
 		#If the task is the movement task
 		if plan[i][0] == global_vars.black_board.movementTask:
-			coord = global_vars.black_board.getCoords(plan[i][2])
+			coord = global_vars.black_board.getCoords(plan[i]
+				[global_vars.black_board.destArg])
 			if coord != False:
 				#Creates a super node to hold the task
-				actionTask = Sequence("Action " + str(i+1))
+				actionTask = Sequence("Task MOVEMENT")
 
 				#Creates a movement task and adds it to the actionTask 
 				#with the corresponding setDoneTask
-				actionTask.add_child(goToTask("MoveToTask: " + plan[i][2], coord))
+				actionTask.add_child(goToTask("MoveToTask: " + 
+					plan[i][global_vars.black_board.destArg], coord))
 				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i))
 
 				#Adds the actionTask to the plan
@@ -101,7 +103,7 @@ def makeTree(plan):
 					moveToLasPositionTask = goToTask("MoveToTaskLastPosition: " + lastPlace, coords)
 
 					#The subroutine first checks the location of the robot, and then if necesary moves it
-					NavigationTask = Selector("NavRoutine", [checkLocation, moveToLasPositionTask])
+					NavigationTask = Selector("NavSubroutine", [checkLocation, moveToLasPositionTask])
 
 					#Creates a node with all the executable leaf nodes
 					execTask = Sequence("Executable", [NavigationTask, actionTask])

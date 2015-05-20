@@ -13,7 +13,7 @@ def getConfig():
 	"""
 
 	#Indicates the movement action defined in the planification domain
-	global_vars.black_board.setMovementTask('GO')
+	global_vars.black_board.setMovementTask('GO', 2)
 
 	#Indicates the relation between a action of the plan and a executable task
 	global_vars.black_board.setTask('PICK_UP',
