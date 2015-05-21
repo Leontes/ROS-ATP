@@ -166,7 +166,7 @@ class sleepTask(Task):
 			return TaskStatus.SUCCESS
 		else:
 			self.sleep -= 1
-			rospy.sleep(1)
+			rospy.sleep(0.1)
 			return TaskStatus.RUNNING
 
 
@@ -174,7 +174,7 @@ class checkDoneTask(Task):
 	""" Class checkDoneTask. When executed checks if the task has been executed
 
 	"""
-	def __init__(self, name, index):
+	def __init__(self, name, index, state):
 		""" Creates a object of the type checkDoneTask
 
 		Keywords arguments:
@@ -183,13 +183,20 @@ class checkDoneTask(Task):
 		"""
 		super(checkDoneTask, self).__init__(name, children = None)
 		self.index = index
+		self.state = state
 
 	def run(self):
 		""" Executes the task. The task checks the task in the black board, 
 		if its have been executed returns Success, else returns FAILURE
 
 		"""
+		
 		if global_vars.black_board.checkDone(self.index) == True:
+			return TaskStatus.SUCCESS
+		elif global_vars.black_board.rePlanNeeded():
+			return TaskStatus.SUCCESS
+		elif compareState(self.state, global_vars.black_board.getWorld()):
+			global_vars.black_board.setReplan(True)
 			return TaskStatus.SUCCESS
 		else:
 			return TaskStatus.FAILURE
@@ -200,7 +207,7 @@ class setDoneTask(Task):
 	in the black board
 
 	"""
-	def __init__(self, name, index):
+	def __init__(self, name, index, function, args):
 		""" Creates a object of the type checkDoneTask
 
 		Keywords arguments:
@@ -209,6 +216,8 @@ class setDoneTask(Task):
 		"""
 		super(setDoneTask, self).__init__(name, children = None)
 		self.index = index
+		self.operator = function
+		self.arguments = args
 
 	def run(self):
 		""" Executes the task. The task checks the task in the black board, 
@@ -219,6 +228,10 @@ class setDoneTask(Task):
 		if global_vars.black_board.checkDone(self.index) == True:
 			return TaskStatus.SUCCESS
 		else:
+			world = global_vars.black_board.getWorld()
+			world = self.operator(world, *self.arguments)
+			
+			global_vars.black_board.setWorld(world)
 			global_vars.black_board.setDone(self.index)
 			return TaskStatus.SUCCESS
 		
@@ -291,3 +304,15 @@ def recharge_cb(result):
 
 	"""
 	rospy.loginfo("BATTERY CHARGED!")
+
+
+
+def compareState(state1, state2):
+	if state1 == False:
+		return False
+	elif state2 == False:
+		return False
+	else:
+		elements1 = vars(state1)
+		elements2 = vars(state2)
+		return (elements1 != elements2)

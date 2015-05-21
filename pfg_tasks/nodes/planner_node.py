@@ -25,6 +25,8 @@ limitations under the License.
 from __future__ import print_function
 
 import rospy
+import copy
+import random
 
 from pyhop import hop
 from parserlib import parser
@@ -34,9 +36,8 @@ from pfg_tasks import global_vars
 from user_files.robot_config import *
 from pfg_tasks.core_tasks import *
 
-
 		
-def makeTree(plan):
+def makeTree(plan, initialState):
 	""" Creates a behaviour tree from a list of routines and a plan
 
 	Keyword arguments:
@@ -58,6 +59,10 @@ def makeTree(plan):
 	#Set all the posible tasks in the black board to be executed
 	global_vars.black_board.taskDone = [False for i in range(len(plan))]
 
+	state = copy.deepcopy(initialState)
+
+	global replanState
+	replanState = state
 
 	#For every task in the plan...
 	for i in range(len(plan)):
@@ -66,19 +71,28 @@ def makeTree(plan):
 			coord = global_vars.black_board.getCoords(plan[i]
 				[global_vars.black_board.destArg])
 			if coord != False:
-				#Creates a super node to hold the task
-				actionTask = Sequence("Task MOVEMENT")
+				#Creates a super node to hold the task 
+				actionTask = Sequence("Action " + str(i+1))
+
+				function = hop.operators[plan[i][0]]
 
 				#Creates a movement task and adds it to the actionTask 
 				#with the corresponding setDoneTask
 				actionTask.add_child(goToTask("MoveToTask: " + 
 					plan[i][global_vars.black_board.destArg], coord))
-				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i))
+				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i, 
+					function, plan[i][1:]))
 
-				#Adds the actionTask to the plan
-				planTask.add_child(actionTask)
 				#Updates the robot position
 				lastPlace = plan[i][2]
+
+				checkDone = checkDoneTask("CheckDoneTask "+ str(i+1), i, copy.deepcopy(state))
+				#Adds a node that first checks if the task has been executed, 
+				#and if not executes it
+				planTask.add_child(Selector("Task "+ plan[i][0], [checkDone, actionTask]))
+				state = function(copy.deepcopy(state), *plan[i][1:])
+
+
 			else:
 				raise ValueError("Place not defined in the black board")
 			
@@ -91,9 +105,12 @@ def makeTree(plan):
 				#Creates a super node to hold the task 
 				actionTask = Sequence("Action " + str(i+1))
 
+				function = hop.operators[plan[i][0]]
+
 				#Adds the task and his setDoneTask to the actionTask
 				actionTask.add_child(task)
-				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i))
+				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i, 
+					function, plan[i][1:]))
 
 				#Subroutine to check the robots position and returns to the work place
 				coords = global_vars.black_board.getCoords(lastPlace)
@@ -109,17 +126,20 @@ def makeTree(plan):
 					execTask = Sequence("Executable", [NavigationTask, actionTask])
 				else:
 					raise ValueError("Place not defined in the black board")
+				
 
-
-				checkDone = checkDoneTask("CheckDoneTask "+ str(i+1), i)
+				checkDone = checkDoneTask("CheckDoneTask "+ str(i+1), i, copy.deepcopy(state))
 				#Adds a node that first checks if the task has been executed, 
 				#and if not executes it
 				planTask.add_child(Selector("Task "+ plan[i][0], [checkDone, execTask]))
+				state = function(copy.deepcopy(state), *plan[i][1:])
 			else:
 				raise ValueError("Task not defined in the black board")
 	
 	#Add the plan to the tree and returns it
 	tree.add_child(planTask)
+	global_vars.black_board.setReplan(False)
+
 	return tree
 
 
@@ -138,11 +158,10 @@ def runRobot():
 			hop.declare_methods(k, domain.methodList[k])
 
 	#Calculates the plan for the given state and goal
-	plan = hop.plan(domain.state,domain.getGoals(),hop.get_operators(),
-		hop.get_methods(),verbose=0)
+	plan = hop.plan(copy.deepcopy(domain.state),domain.getGoals(),
+		hop.get_operators(),hop.get_methods(),verbose=0)
 
-
-	if plan != False:
+	if plan != None:
 
 		print('** result =',plan,'\n')
 		
@@ -160,13 +179,40 @@ def runRobot():
 		init_environment()
 
 		#Computes the behaviour tree
-		Tree = makeTree(plan)
-		print_tree(Tree)
+		global_vars.black_board.setWorld(copy.deepcopy(domain.state))
 
+		Tree = makeTree(plan, domain.state)
+		print_tree(Tree)
+		
+		
+		replanTestDone = False
+		global replanState
 		#Runs the tree
 		while not rospy.is_shutdown() and global_vars.black_board.finished() == False:
-			Tree.run()
-			rospy.sleep(0.1)
+			while not rospy.is_shutdown() and global_vars.black_board.finished() == False and global_vars.black_board.rePlanNeeded() == False:
+				Tree.run()
+				rospy.sleep(0.1)
+				if replanTestDone == False:
+					if random.random() > 0.99:
+						replanTestDone = True
+						global_vars.black_board.setWorld(copy.deepcopy(replanState))
+
+
+			if global_vars.black_board.rePlanNeeded() == True:
+				print ("Replanning...")
+				global_vars.move_base.cancel_all_goals()
+				global_vars.cmd_vel_pub.publish(Twist())
+				
+				plan = hop.plan(copy.deepcopy(global_vars.black_board.getWorld()),
+					domain.getGoals(),hop.get_operators(),hop.get_methods(),verbose=0)
+				if plan != None:
+					print('** New plan =',plan,'\n')
+					Tree = makeTree(plan, copy.deepcopy(global_vars.black_board.getWorld()))
+					print_tree(Tree)
+				else: 
+					print("Empty plan generated")
+					raise ValueError("Empty plan generated")
+
 	else:
 		print("Empty plan generated")
 		raise ValueError("Empty plan generated")

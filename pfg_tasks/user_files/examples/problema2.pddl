@@ -17,8 +17,8 @@
 	)
 
 	(:goal
-		(work Piece2 typeB)
 		(work Piece1 typeB)
+		(work Piece2 typeB)
 	)
 )
  

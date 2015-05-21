@@ -152,7 +152,7 @@ class BlackBoard(object):
 		return self.world
 
 
-	def setsReplan(self, flag):
+	def setReplan(self, flag):
 		""" Sets in the black board if its needed to make a replanification
 
 		Keyword arguments:

@@ -25,7 +25,7 @@ def getConfig():
 	global_vars.black_board.setTask('UNLOAD',
 		spinRightTask(name = 'unLoadTask', timer=40))
 	global_vars.black_board.setTask('TRANSFORM',
-		sleepTask(name = 'useWorkstationTask', timer = 5))
+		sleepTask(name = 'useWorkstationTask', timer = 50))
 	#global_vars.black_board.setTask('actionName', 
 		#task(param1 = value1, param2 = value2, ...))
 
