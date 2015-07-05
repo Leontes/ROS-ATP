@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<robot name="ATPBot" xmlns:xacro="http://ros.ogr/wiki/xacro">
+
+  <property name="laser_offset_x" value="0.110" />
+  <property name="laser_offset_y" value="0.0" />
+  <property name="laser_offset_z" value="-0.03" />
+
+  <xacro:include filename="$(find atp_description)/urdf/materials.urdf.xacro" />
+  <xacro:include filename="$(find atp_description)/urdf/base.urdf.xacro" />
+   <xacro:include filename="$(find atp_description)/urdf/laser.urdf.xacro" />
+
+  <base name="base" color = "TransparentGreen"/>
+
+  <laser parent="base" color = "TransparentBlack">
+  	<origin xyz="${laser_offset_x} ${laser_offset_y} ${laser_offset_z}" rpy="0 0 0" />
+  </laser>
+
+</robot>

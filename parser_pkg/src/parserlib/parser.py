@@ -1,9 +1,9 @@
 #!/usr/bin/python
 
 """
-parser.py.py - Version 1.0 2015-05-14
+parser.py - Version 1.0 2015-05-14
 
-Pddl parser to pyhop
+Pddl parser for pyhop
 
 Copyright (c) 2015 Jose Angel Segura Muros.  All rights reserved.
 

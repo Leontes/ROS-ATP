@@ -1,13 +1,20 @@
 <package>
-  <name>parser_pkg</name>
+  <name>atp_msgs</name>
   <version>1.0.0</version>
 
   <maintainer email="theshaljas@gmail.com">José Ángel Segura Muros</maintainer>
   <license>Apache</license>
-  <description>Package that implements a pddl parser for Pyhop</description>
+  <description>Message and Service definitions for R.O.S. ATP </description>
   <url type="website">https://github.com/Leontes/PFG</url>
   <author email="theshaljas@gmail.com">José Ángel Segura Muros</author>
 
   <!-- Dependencies which this package needs to build itself. -->
   <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Dependencies needed to compile this package. -->
+  <build_depend>message_generation</build_depend>
+
+  <!-- Dependencies needed after this package is compiled. -->
+  <run_depend>message_runtime</run_depend>
+
 </package>
