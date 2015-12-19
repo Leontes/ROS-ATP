@@ -24,6 +24,8 @@ limitations under the License.
 
 
 import rospy
+import copy
+
 from move_base_msgs.msg import MoveBaseGoal, MoveBaseAction
 from geometry_msgs.msg import Pose
 from pi_trees_ros.pi_trees_ros import *
@@ -63,7 +65,7 @@ class BlackBoard(object):
 		task -- String indicating the task name
 		"""
 		if(task in self.task_list):
-			return self.task_list[task]
+			return copy.copy(self.task_list[task])
 		else:
 			return False
 
