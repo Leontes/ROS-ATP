@@ -5,7 +5,7 @@
   <maintainer email="theshaljas@gmail.com">José Ángel Segura Muros</maintainer>
   <license>Apache</license>
   <description>R.O.S. ATP main package </description>
-  <url type="website">https://github.com/Leontes/PFG</url>
+  <url type="website">https://github.com/Leontes/ROS-ATP</url>
   <author email="theshaljas@gmail.com">José Ángel Segura Muros</author>
 
   <!-- Dependencies which this package needs to build itself. -->
@@ -23,17 +23,17 @@
   <build_depend>pi_trees_ros</build_depend>
 
   <!-- Dependencies needed after this package is compiled. -->
-  <build_depend>rospy</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>nav_msgs</build_depend>
-  <build_depend>move_base_msgs</build_depend>
-  <build_depend>actionlib</build_depend>
-  <build_depend>atp_msgs</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>pi_trees_lib</build_depend>
-  <build_depend>pi_trees_ros</build_depend>
-  <build_depend>parser_pkg</build_depend>
-  <build_depend>pyhop_lib</build_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>move_base_msgs</run_depend>
+  <run_depend>actionlib</run_depend>
+  <run_depend>atp_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>pi_trees_lib</run_depend>
+  <run_depend>pi_trees_ros</run_depend>
+  <run_depend>parser_pkg</run_depend>
+  <run_depend>pyhop_lib</run_depend>
 
 
 </package>

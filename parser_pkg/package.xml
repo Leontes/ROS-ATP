@@ -5,7 +5,7 @@
   <maintainer email="theshaljas@gmail.com">José Ángel Segura Muros</maintainer>
   <license>Apache</license>
   <description>Package that implements a pddl parser for Pyhop</description>
-  <url type="website">https://github.com/Leontes/PFG</url>
+  <url type="website">https://github.com/Leontes/ROS-ATP</url>
   <author email="theshaljas@gmail.com">José Ángel Segura Muros</author>
 
   <!-- Dependencies which this package needs to build itself. -->

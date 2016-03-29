@@ -22,10 +22,10 @@ limitations under the License.
 """
 
 
-from parserlib.tokenGenerator import *
-from parserlib.domain import *
-from parserlib.primitive import *
-from parserlib.method import *
+from parser_pkg.tokenGenerator import *
+from parser_pkg.domain import *
+from parser_pkg.primitive import *
+from parser_pkg.method import *
 
 
 defined = False
@@ -61,7 +61,7 @@ def makeMethods(tokens):
 	Keyword arguments:
 	tokens -- Collection of tokens
 	"""
-	
+
 	name = tokens[0]
 	cases = []
 
@@ -76,12 +76,12 @@ def makeMethods(tokens):
 	if cases == []:
 		raise Exception("Cases not defined")
 
-	problemDomain.setMethods(name.upper(), Method(name, problemDomain, 
+	problemDomain.setMethods(name.upper(), Method(name, problemDomain,
 		parameters, cases))
 
 
 def makeGoals(tokens):
-	"""Formats a token stream and creates a new goal 
+	"""Formats a token stream and creates a new goal
 
 	Keyword arguments:
 	tokens -- Collection of tokens
@@ -93,10 +93,10 @@ def makeGoals(tokens):
 		tAux = tuple(tokens[i])
 		aux.append(tAux)
 	return aux
-	
+
 
 def evaluateTokenList(tokens):
-	"""Formats a token stream and call the propers function to deal with it 
+	"""Formats a token stream and call the propers function to deal with it
 
 	Keyword arguments:
 	tokens -- Collection of tokens
@@ -113,7 +113,7 @@ def evaluateTokenList(tokens):
 
 	elif tokens[0] == ":domain":
 		problemDomain.checkDomainName(tokens[1])
-	
+
 	elif tokens[0] == ":requirements":
 		problemDomain.setRequirements(tokens[1:])
 
@@ -148,12 +148,12 @@ def evaluateTokenList(tokens):
 	elif tokens[0] == ":goal":
 		problemDomain.setGoals(makeGoals(tokens[1:]))
 
-	else: 
+	else:
 		raise Exception("Unexpected token " + str(tokens[0]) + " received")
 
 
 def parse(domainFilename, problemFilename):
-	"""Opens the files, generates a token list and process it 
+	"""Opens the files, generates a token list and process it
 
 	Keyword arguments:
 	domainFilename -- String, name of the domain file
@@ -165,8 +165,8 @@ def parse(domainFilename, problemFilename):
 
 		while tokens != eof_object:
 			for i in range(len(tokens)):
-				evaluateTokenList(tokens[i])	
-			tokens = tkGen.readAll() 
+				evaluateTokenList(tokens[i])
+			tokens = tkGen.readAll()
 
 	with open(problemFilename) as problemPddlFile:
 		tkGen = tokenGenerator(problemPddlFile)

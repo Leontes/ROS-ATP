@@ -5,7 +5,7 @@ from catkin_pkg.python_setup import generate_distutils_setup
 
 # fetch values from package.xml
 setup_args = generate_distutils_setup(
-    packages=['tasks_exec', 'user_files'],
-    package_dir={'tasks': 'src', 'user_files' : 'user_files'})
+    packages=['tasks', 'user_files'],
+    package_dir={'tasks': 'src/tasks', 'user_files' : 'user_files'})
 
 setup(**setup_args)

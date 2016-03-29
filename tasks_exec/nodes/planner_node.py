@@ -3,7 +3,7 @@
 """
 planner_node.py - Version 1.0 2015-04-14
 
-Creates a behaviour tree from a plan given by a HTN planner, 
+Creates a behaviour tree from a plan given by a HTN planner,
 and executes it
 
 Copyright (c) 2015 Jose Angel Segura Muros.  All rights reserved.
@@ -29,9 +29,9 @@ import rospy
 import copy
 
 from pyhop import hop
-from parserlib import parser
+from parser_pkg import parser
 from pi_trees_lib.pi_trees_lib import *
-from description.enviroment_setup import * 
+from description.enviroment_setup import *
 from tasks import global_vars
 from user_files.robot_config import *
 from tasks.core_tasks import *
@@ -39,7 +39,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from nav_msgs.msg import Odometry
 from atp_msgs.srv import *
 
-		
+
 def makeTree(plan, initialState):
 	""" Creates a behaviour tree from a list of routines and a plan
 
@@ -71,23 +71,23 @@ def makeTree(plan, initialState):
 			coord = global_vars.black_board.getCoords(plan[i]
 				[global_vars.black_board.destArg])
 			if coord != False:
-				#Creates a super node to hold the task 
+				#Creates a super node to hold the task
 				actionTask = Sequence("Action " + str(i+1))
 
 				function = hop.operators[plan[i][0]]
 
-				#Creates a movement task and adds it to the actionTask 
+				#Creates a movement task and adds it to the actionTask
 				#with the corresponding setDoneTask
-				actionTask.add_child(goToTask("MoveToTask: " + 
+				actionTask.add_child(goToTask("MoveToTask: " +
 					plan[i][global_vars.black_board.destArg], coord))
-				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i, 
+				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i,
 					function, plan[i][1:]))
 
 				#Updates the robot position
 				lastPlace = plan[i][2]
 
 				checkDone = checkDoneTask("CheckDoneTask "+ str(i+1), i, copy.deepcopy(state))
-				#Adds a node that first checks if the task has been executed, 
+				#Adds a node that first checks if the task has been executed,
 				#and if not executes it
 				planTask.add_child(Selector("Task "+ plan[i][0], [checkDone, actionTask]))
 				state = function(copy.deepcopy(state), *plan[i][1:])
@@ -95,21 +95,21 @@ def makeTree(plan, initialState):
 
 			else:
 				raise ValueError("Place not defined in the black board")
-			
+
 		#If not is the movement task
 		else:
 			#Request the executable task to the black board
 			task = global_vars.black_board.getTask(plan[i][0])
 			if task != False:
 
-				#Creates a super node to hold the task 
+				#Creates a super node to hold the task
 				actionTask = Sequence("Action " + str(i+1))
 
 				function = hop.operators[plan[i][0]]
 
 				#Adds the task and his setDoneTask to the actionTask
 				actionTask.add_child(task)
-				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i, 
+				actionTask.add_child(setDoneTask("SetDoneTask "+ str(i+1), i,
 					function, plan[i][1:]))
 
 				#Subroutine to check the robots position and returns to the work place
@@ -126,16 +126,16 @@ def makeTree(plan, initialState):
 					execTask = Sequence("Executable", [NavigationTask, actionTask])
 				else:
 					raise ValueError("Place not defined in the black board")
-				
+
 
 				checkDone = checkDoneTask("CheckDoneTask "+ str(i+1), i, copy.deepcopy(state))
-				#Adds a node that first checks if the task has been executed, 
+				#Adds a node that first checks if the task has been executed,
 				#and if not executes it
 				planTask.add_child(Selector("Task "+ plan[i][0], [checkDone, execTask]))
 				state = function(copy.deepcopy(state), *plan[i][1:])
 			else:
 				raise ValueError("Task not defined in the black board")
-	
+
 	#Add the plan to the tree and returns it
 	tree.add_child(planTask)
 	global_vars.black_board.setReplan(False)
@@ -149,7 +149,7 @@ def runRobot():
  	Initializes all the variables needed for the application, calls for a plan,
  	makes the behaviour tree and runs it.
  	"""
-	
+
 
 	domain = parser.parse(sys.argv[1], sys.argv[2])
 
@@ -164,7 +164,7 @@ def runRobot():
 	if plan != None:
 
 		print('PLAN =',plan,'\n')
-		
+
 		#Launchs the ros node, and set it the shutdown function
 		rospy.init_node("planner_node", anonymous=False)
 
@@ -175,7 +175,7 @@ def runRobot():
 
 		getConfig()
 
-		#Initializes the simulator 
+		#Initializes the simulator
 		init_environment()
 
 		initBattery = rospy.ServiceProxy("battery_simulator/set_battery_level", SetBatteryLevel)
@@ -187,8 +187,8 @@ def runRobot():
 
 		Tree = makeTree(plan, domain.state)
 		print_tree(Tree)
-		
-		
+
+
 		#Runs the tree
 		while not rospy.is_shutdown() and global_vars.black_board.finished() == False:
 			while not rospy.is_shutdown() and global_vars.black_board.finished() == False and global_vars.black_board.rePlanNeeded() == False:
@@ -199,14 +199,14 @@ def runRobot():
 				print ("Replanning...")
 				global_vars.move_base.cancel_all_goals()
 				global_vars.cmd_vel_pub.publish(Twist())
-				
+
 				plan = hop.plan(copy.deepcopy(global_vars.black_board.getWorld()),
 					domain.getGoals(),hop.get_operators(),hop.get_methods(),verbose=0)
 				if plan != None:
 					print('** New plan =',plan,'\n')
 					Tree = makeTree(plan, copy.deepcopy(global_vars.black_board.getWorld()))
 					print_tree(Tree)
-				else: 
+				else:
 					print("Empty plan generated")
 					raise ValueError("Empty plan generated")
 
@@ -231,7 +231,7 @@ def shutdown():
 
 if __name__ == '__main__':
 	"""Main funcion of the node
-	
+
 	"""
 	if len(sys.argv) < 3:
 		print("Usage: rosrun pfg_tasks planner_node.py domain.pddl problem.pddl")

@@ -6,6 +6,6 @@ from catkin_pkg.python_setup import generate_distutils_setup
 # fetch values from package.xml
 setup_args = generate_distutils_setup(
     packages=['parser_pkg'],
-    package_dir={'parserlib': 'src'})
+    package_dir={'parser_pkg': 'src/parser_pkg'})
 
 setup(**setup_args)

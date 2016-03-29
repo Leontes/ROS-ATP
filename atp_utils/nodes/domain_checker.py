@@ -23,7 +23,7 @@ limitations under the License.
 """
 
 
-from parserlib import parser
+from parser_pkg import parser
 from pyhop import hop
 import sys
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 		print "\nParsing domain: " + domPddl
 		print "Parsing problem: " + probPddl
 		domain = parser.parse(domPddl, probPddl)
-		
+
 		print "\nINITIAL STATE: \n"
 		domain.printState()
 		print "\n"
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
 		for k in domain.methodList.keys():
 			hop.declare_methods(k, domain.methodList[k])
-		hop.print_methods(hop.get_methods())	
+		hop.print_methods(hop.get_methods())
 
 		print "\n"
 		plan = hop.plan(domain.state,domain.getGoals(),hop.get_operators(),hop.get_methods(),verbose=2)
